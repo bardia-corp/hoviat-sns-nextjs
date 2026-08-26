@@ -54,6 +54,7 @@ import {
   signOutAction,
 } from "@/app/actions/account"
 import { Picker } from "@/components/Picker"
+import Avatar from "@/components/Avatar"
 import RequireAuth from "@/components/RequireAuth"
 import { apiFetch } from "@/lib/client-session"
 import { useAuth } from "@/components/AuthProvider"
@@ -68,16 +69,16 @@ export default function ProfilePage() {
   return (
     <main className="screen">
       <header className="hero">
-        <p className="hero__eyebrow">من</p>
         <h1 className="hero__title hero__title--sm">پروفایل من</h1>
         <p className="hero__sub">
-          تعیین کنید دیگران چه چیزی از شما می‌بینند و اصلاً در جستجو پیدا می‌شوید یا نه.
+          اطلاعات و شبکه‌های اجتماعی خود را کامل کنید و تصمیم بگیرید دیگران چه
+          چیزی از شما ببینند.
         </p>
       </header>
 
       <RequireAuth
-        title="برای تنطیم پروفایل وارد شوید"
-        text="پروفایل، پیوندها و تنطیمات حریم خصوصی به حساب کاربری شما تعلق دارند. با تلگرام وارد شوید تا پروفایلتان را بسازید."
+        title="برای تنظیم پروفایل وارد شوید"
+        text="پروفایل، پیوندها و تنظیمات حریم خصوصی به حساب کاربری شما تعلق دارند. با تلگرام وارد شوید تا پروفایلتان را بسازید."
       >
         <ProfileBody />
       </RequireAuth>
@@ -212,32 +213,33 @@ function ProfileHeader({
   }
 
   return (
-    <div className="profile-head">
-      <div className="profile-head__avatar">
-        <img
-          src={account.profile_url ?? "/avatars/a1.jpg"}
-          alt=""
-          width={72}
-          height={72}
-        />
+    <div className="profile-head glass">
+      <div className="profile-head__main">
+        <div className="profile-head__avatar">
+          <Avatar person={account} size={72} />
+        </div>
+
+        <div className="profile-head__info">
+          <h2 className="profile-head__name">
+            {name}
+            {account.is_registered ? (
+              <span className="card__badge" title="ثبت‌نام شده">
+                <VerifiedIcon size={15} />
+                <span className="sr-only">ثبت‌نام شده</span>
+              </span>
+            ) : null}
+          </h2>
+
+          {/* Occupation and country share one quiet line; the join date gets a
+              pill so the panel reads as summary, not as a form. */}
+          <p className="profile-head__meta">
+            {[account.occupation, account.country]
+              .filter(Boolean)
+              .join(" \u00b7 ") || "شغل و کشور ثبت نشده‌اند"}
+          </p>
+          <p className="tag">{"عضو از " + formatJoinDate(account.join_date)}</p>
+        </div>
       </div>
-
-      <h2 className="profile-head__name">
-        {name}
-        {account.is_registered ? (
-          <span className="card__badge" title="ثبت‌نام شده">
-            <VerifiedIcon size={15} />
-            <span className="sr-only">ثبت‌نام شده</span>
-          </span>
-        ) : null}
-      </h2>
-
-      {/* One line each, never joined with a separator. */}
-      <p className="profile-head__meta">{account.occupation ?? "شغلی ثبت نشده"}</p>
-      <p className="profile-head__meta">{account.country ?? "کشوری ثبت نشده"}</p>
-      <p className="profile-head__meta">
-        {"عضو از " + formatJoinDate(account.join_date)}
-      </p>
 
       <div className="avatar-actions">
         {/* A label wrapping a hidden input: file inputs cannot be styled, and
@@ -276,12 +278,6 @@ function ProfileHeader({
           </button>
         ) : null}
       </div>
-
-      {/* Ten uploads an hour, and the limit is per user and per address. Worth
-          saying once rather than as a surprise error. */}
-      <p className="panel__hint" style={{ marginTop: 8 }}>
-        تا ده بار در هر ساعت می‌توانید عکس تازه بارگزاری کنید.
-      </p>
     </div>
   )
 }
@@ -408,7 +404,7 @@ function InfoSection({
               }
             />
             <p className="field__hint">
-              متن معرفی در جستجوی سراسری جستجو می‌شود.
+              این متن در جستجوی سراسری هم دیده می‌شود.
             </p>
           </div>
 
@@ -432,7 +428,7 @@ function InfoSection({
               onChange={(next) => setDraft({ ...draft, occupation: next })}
             />
             <p className="field__hint">
-              همین مقدار است که دیگران هنگام جستجوی شغل پیدا می‌کنند.
+              دیگران با جستجوی همین شغل، شما را پیدا می‌کنند.
             </p>
           </div>
 
@@ -459,8 +455,8 @@ function InfoSection({
                 what makes you findable. Two spellings of one country are two
                 different countries as far as search is concerned. */}
             <p className="field__hint">
-              از فهرست انتخاب کنید؛ جستجوی کشور دقیقاً مقایسه می‌شود و املای متفاوت
-              شما را از نتایج حذف می‌کند.
+              کشور را از فهرست انتخاب کنید؛ املای متفاوت باعث می‌شود در جستجوی
+              کشور پیدا نشوید.
             </p>
           </div>
 
@@ -483,7 +479,8 @@ function InfoSection({
           {/* Not editable: the phone number and username come from Telegram,
               and PATCH /account/profile rejects unknown fields outright. */}
           <p className="field__hint">
-            نام کاربری و شماره تلفن از تلگرام می‌آیند و اینجا قابل تغییر نیستند.
+            نام کاربری و شماره تلفن از تلگرام گرفته می‌شود و از اینجا قابل تغییر
+            نیست.
           </p>
 
           {error ? (
@@ -605,7 +602,7 @@ function LinksSection({
       </div>
 
       <p className="panel__hint">
-        پلتفرم را انتخاب کنید و فقط شناسه‌تان را بنویسید؛ نشانی کامل خودبه‌خود ساخته
+        پلتفرم را انتخاب کنید و آیدی خودتان را وارد کنید؛ لینک کامل خودش ساخته
         می‌شود.
       </p>
 
@@ -615,7 +612,9 @@ function LinksSection({
             const platform = platformFor(row.platform) ?? PLATFORMS[0]
             return (
               <div className="field" key={index}>
-                <div className="social-editor__row">
+                {/* LTR row: platform names and identifiers are Latin. The
+                    Persian hint below the row stays RTL. */}
+                <div className="social-editor__row" dir="ltr">
                   <div className="social-editor__platform">
                     <Picker
                       label="پلتفرم"
@@ -711,7 +710,9 @@ function LinksSection({
           </div>
         </>
       ) : links.length > 0 ? (
-        <ul className="social">
+        /* dir="ltr" on the list only: the handles and platform names are
+           Latin, while the Persian heading and hints above stay RTL. */
+        <ul className="social" dir="ltr">
           {links.map((link) => (
             <li key={link.id ?? link.platform + link.url}>
               <a
@@ -720,14 +721,17 @@ function LinksSection({
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {socialLabel(link)}
+                <span>{socialLabel(link)}</span>
+                {/* The identifier is what the user picked, so it is shown,
+                    not just the network name. */}
+                <span className="social__handle">{socialHandle(link)}</span>
                 <ExternalIcon />
               </a>
             </li>
           ))}
         </ul>
       ) : (
-        <p className="panel__hint">هنوز پیوندی اضافه نکرده‌اید.</p>
+        <p className="panel__hint">هنوز شبکه اجتماعی اضافه نکرده‌اید.</p>
       )}
     </div>
   )
@@ -761,7 +765,7 @@ function PrivacySection({
 
     if (!result.ok) {
       setAccount(previous)
-      setNotice(result.message ?? "تنطیم ذخیره نشد.")
+      setNotice(result.message ?? "تنظیم ذخیره نشد.")
     }
   }
 
@@ -784,8 +788,8 @@ function PrivacySection({
           <div className="switch-row__text">
             <p>نمایش در جستجو</p>
             <p className="switch-row__hint">
-              اگر خاموش باشد، پروفایل شما برای بقیه کاملاً ناپیدا می‌شود؛ نه در جستجو
-              می‌آید و نه با پیوند مستقیم باز می‌شود.
+              اگر خاموش باشد، هیچ‌کس پروفایل شما را نمی‌بیند و در جستجو هم پیدا
+              نمی‌شوید.
             </p>
           </div>
           <button
@@ -805,8 +809,8 @@ function PrivacySection({
       <div className="panel glass" style={{ marginTop: 14 }}>
         <h2 className="panel__title">دیگران چه می‌بینند</h2>
         <p className="panel__hint">
-          فیلد خصوصی فقط پنهان نمی‌شود؛ جستجو روی آن فیلد هم دیگر شما را پیدا
-          نمی‌کند.
+          هر چیزی که خصوصی کنید، در پروفایل شما دیده نمی‌شود و با آن هم پیدا
+          نمی‌شوید.
         </p>
 
         {PRIVACY_FIELDS.map((field) => {
@@ -815,7 +819,9 @@ function PrivacySection({
             <div className="switch-row" key={field.key}>
               <div className="switch-row__text">
                 <p>{field.label}</p>
-                <p className="switch-row__hint">{field.hint}</p>
+                {field.hint ? (
+                  <p className="switch-row__hint">{field.hint}</p>
+                ) : null}
               </div>
               <button
                 type="button"

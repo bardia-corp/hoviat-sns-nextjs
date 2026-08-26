@@ -86,9 +86,7 @@ export default async function DiscoverPage({ searchParams }: PageProps) {
   return (
     <main className="screen">
       <header className="hero">
-        <p className="hero__eyebrow">جستجو</p>
         <h1 className="hero__title hero__title--sm">{heading}</h1>
-        <p className="hero__sub">مرتب‌شده از تازه‌ترین.</p>
       </header>
 
       <DiscoverControls query={query} />

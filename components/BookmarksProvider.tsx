@@ -11,6 +11,7 @@ import {
 import { useRouter } from "next/navigation"
 import { setBookmark } from "@/app/actions/bookmarks"
 import { apiFetch, notifySessionExpired } from "@/lib/client-session"
+import type { Profile } from "@/lib/api/types"
 import { useAuth } from "./AuthProvider"
 
 /**
@@ -71,10 +72,12 @@ export function BookmarksProvider({
 
     let cancelled = false
 
-    /* ids=1 keeps this to a list of numbers. The upstream endpoint returns
-       whole profiles, so without it every page load would ship an entire
-       bookmarked profile set just to decide which icons are filled. */
-    apiFetch<never>("/api/bookmarks?ids=1")
+    /* The same request the bookmarks screen makes, so whatever it returns is
+       by definition what the list shows - the icons can never disagree with
+       the list again. The endpoint sends whole profiles; only the ids are
+       kept. Number() guards the comparison: an upstream that serialises
+       user_id as a string would otherwise miss every server id. */
+    apiFetch<Profile[]>("/api/bookmarks")
       .then((result) => {
         if (cancelled) return
 
@@ -86,8 +89,12 @@ export function BookmarksProvider({
           return
         }
 
-        const body = result as unknown as { ids?: number[] }
-        setIds(Array.isArray(body.ids) ? body.ids : [])
+        const rows = Array.isArray(result.data) ? result.data : []
+        setIds(
+          rows
+            .map((row) => Number(row?.user_id))
+            .filter((id) => Number.isFinite(id)),
+        )
 
         /* A genuine failure while signed in: browsing still works, the icons
            just start empty, so this is a note rather than a blocked screen. */
@@ -104,7 +111,12 @@ export function BookmarksProvider({
     }
   }, [authReady, signedIn])
 
-  const has = useCallback((userId: number) => ids.includes(userId), [ids])
+  /* Number() on both sides, so a numeric id always matches however the
+     upstream serialised it. */
+  const has = useCallback(
+    (userId: number) => ids.includes(Number(userId)),
+    [ids],
+  )
 
   const isPending = useCallback(
     (userId: number) => pending.includes(userId),
@@ -122,7 +134,7 @@ export function BookmarksProvider({
         return
       }
 
-      const next = !ids.includes(userId)
+      const next = !has(userId)
       setError(null)
       setIds((current) =>
         next ? [userId, ...current] : current.filter((id) => id !== userId),

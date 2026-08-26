@@ -45,7 +45,6 @@ export default async function DashboardPage() {
         text="نمای کلی، ذخیره‌ها و پروفایل شما به حساب کاربری نیاز دارند. جستجو بدون ورود کار می‌کند، پس می‌توانید اول گشتی بزنید."
       >
         <header className="hero">
-          <p className="hero__eyebrow">هویت</p>
           <h1 className="hero__title">خوش آمدید</h1>
           <p className="hero__sub">
             افراد را بر اساس کشور و شغل پیدا کنید و هر کس را که برایتان مهم
@@ -72,9 +71,6 @@ export default async function DashboardPage() {
 
         <section className="panel glass">
           <h2 className="panel__title">جستجوهای پرطرفدار</h2>
-          <p className="panel__hint">
-            هر کدام از این‌ها صفحه‌ی مستقل و قابل ایندکس خودش را دارد.
-          </p>
           <ul className="link-list">
             {CURATED_SEARCHES.map((item) => (
               <li key={item.slug}>
@@ -88,14 +84,7 @@ export default async function DashboardPage() {
         </section>
 
         <section className="panel glass">
-          <h2 className="panel__title">گشت بر اساس کشور</h2>
-          {/* Only canonical values are linked. Country is matched byte for
-              byte on the server, so a link built from a variant spelling would
-              return an empty page. */}
-          <p className="panel__hint">
-            کشور دقیقاً مقایسه می‌شود، پس این پیوندها همان مقدار استاندارد را
-            می‌فرستند.
-          </p>
+          <h2 className="panel__title">جستجو بر اساس کشور</h2>
           <ul className="applied">
             {COUNTRIES.slice(0, 12).map((country) => (
               <li className="applied__item" key={country}>

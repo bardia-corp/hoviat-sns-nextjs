@@ -14,7 +14,8 @@
  * sign-in page instead of silently doing nothing.
  */
 
-import { avatarFor, displayName, type Profile } from "@/lib/people"
+import { displayName, type Profile } from "@/lib/people"
+import Avatar from "./Avatar"
 import { BookmarkFilledIcon, PlusIcon, VerifiedIcon } from "./Icons"
 import { useBookmarks } from "./BookmarksProvider"
 import { usePersonModal } from "./PersonModalProvider"
@@ -40,7 +41,7 @@ export default function ProfileCard({ person }: { person: Profile }) {
         <span className="card__avatar">
           {/* Plain img: the avatars are already cropped to 256px and served
               from /public, so next/image would add machinery for no benefit. */}
-          <img src={avatarFor(person)} alt="" width={52} height={52} />
+          <Avatar person={person} size={52} />
         </span>
 
         <span className="card__body">

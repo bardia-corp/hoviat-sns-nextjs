@@ -130,7 +130,7 @@ export default function FilterModal({
             placeholder="همه کشورها"
             searchable
             allowCustom
-            hint="کشور دقیقاً مقایسه می‌شود؛ از فهرست انتخاب کنید."
+            hint="کشور را از فهرست انتخاب کنید."
             matchOption={(option, needle) => {
               const suggestion = COUNTRY_SUGGESTIONS.find(
                 (item) => item.value === option,

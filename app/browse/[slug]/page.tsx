@@ -66,7 +66,6 @@ export default async function BrowsePage({ params, searchParams }: PageProps) {
   return (
     <main className="screen">
       <header className="hero">
-        <p className="hero__eyebrow">{SITE_NAME}</p>
         <h1 className="hero__title hero__title--sm">{curated.heading}</h1>
         <p className="hero__sub">{curated.description}</p>
       </header>

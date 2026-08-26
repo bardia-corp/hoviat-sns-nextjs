@@ -176,6 +176,15 @@ a {
   color: inherit;
 }
 
+/* Form controls and buttons do not inherit the page font by default; without
+   this they fall back to the system stack and break the Vazirmatn rule. */
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
 /* --------------------------------------------------------------------------
    Glass surface
    -------------------------------------------------------------------------- */
@@ -1146,16 +1155,33 @@ a {
 }
 
 /* --------------------------------------------------------------------------
-   Profile header
-   -------------------------------------------------------------------------- */
+    Profile header
+
+    A panel like every other section: avatar beside the name and details on
+    one row (.profile-head__main), actions and hints below it. Pair it with
+    the .glass class in the markup for the frosted background.
+    -------------------------------------------------------------------------- */
 
 .profile-head {
   margin-top: 20px;
   padding: 20px;
   border-radius: var(--radius-card);
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.profile-head__main {
+  width: 100%;
+  display: flex;
   align-items: center;
   gap: 14px;
+}
+
+.profile-head__info {
+  flex: 1;
+  min-width: 0;
 }
 
 .profile-head__avatar {
@@ -1179,15 +1205,23 @@ a {
 
 .profile-head__name {
   margin: 0;
+  /* Flex, not plain inline: the verified badge is a block-level grid box, and
+     without this it wraps onto its own line under the name. */
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 20px;
   font-weight: 800;
-  letter-spacing: -0.02em;
 }
 
 .profile-head__meta {
-  margin: 4px 0 0;
+  margin: 6px 0 0;
   font-size: 13px;
   color: var(--ink-2);
+}
+
+.profile-head__meta--quiet {
+  color: var(--ink-3);
 }
 
 .profile-head__handle {
@@ -1775,6 +1809,23 @@ a {
   border: 2px solid rgba(255, 255, 255, 0.9);
 }
 
+/* No-picture fallback rendered by components/Avatar.tsx: nickname initials on
+   the same blue gradient the ring already uses. Fills whatever avatar box
+   contains it, so one rule serves every size. */
+.avatar-initials {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  background: linear-gradient(150deg, var(--orb-top) 0%, var(--orb-mid) 100%);
+  color: #fff;
+  font-weight: 800;
+  user-select: none;
+}
+
 .person__name {
   margin: 0;
   display: flex;
@@ -1871,6 +1922,7 @@ a {
   align-items: center;
   gap: 7px;
   height: 38px;
+  max-width: 100%;
   padding: 0 14px;
   border-radius: 999px;
   border: 1px solid rgba(11, 138, 232, 0.3);
@@ -1879,6 +1931,21 @@ a {
   font-size: 13px;
   font-weight: 700;
   text-decoration: none;
+}
+
+/* Chips carry both the platform and the identifier, so the reader sees which
+   value belongs to which network without opening the link. */
+.social__handle {
+  font-weight: 500;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Handles and URLs are Latin; the chip is always LTR even on the RTL page.
+   The Persian hints around it stay RTL. */
+.social[dir="ltr"] {
+  direction: ltr;
 }
 
 .social-editor__row {
@@ -2168,17 +2235,6 @@ a.btn-add {
   justify-content: center;
 }
 
-.profile-head {
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 12px;
-}
-
-.profile-head__name {
-  justify-content: center;
-}
-
 /* Section header with its own edit control. */
 .panel__head {
   display: flex;
@@ -2461,23 +2517,12 @@ body {
   }
 }
 
-/* The public profile page composes the centered header out of the .person__*
-   pieces (they are the ones the modal uses too), so those children need the
-   same treatment .profile-head__* already gets. Without this the avatar keeps
-   its 84px modal size and the name row stays start-aligned. */
+/* The full-detail page reuses the .person__* pieces inside the header row;
+   only the avatar box needs sizing, the text follows the info column. */
 .profile-head .person__avatar {
-  width: 96px;
-  height: 96px;
-}
-
-.profile-head .person__name {
-  justify-content: center;
-}
-
-/* Two stacked role lines: spacing comes from the container's gap, so their own
-   margins would double it. */
-.profile-head .person__role {
-  margin: 0;
+  width: 76px;
+  height: 76px;
+  flex: 0 0 auto;
 }
 
 /* ==========================================================================

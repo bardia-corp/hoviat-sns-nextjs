@@ -110,7 +110,7 @@ export function describeQuery(query: SearchQuery): string {
   if (occupation) return occupation
   if (country) return "افراد در " + country
   if (q) return "نتایج برای «" + q + "»"
-  return "کشف افراد"
+  return "جستجو"
 }
 
 export function titleFor(query: SearchQuery): string {

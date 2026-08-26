@@ -230,13 +230,3 @@ export function joinedLabel(person: Profile): string {
   /* join_date is unix seconds. */
   return jalaliMonthYear(person.join_date)
 }
-
-/**
- * profile_url is null for anyone without a picture or with the picture set to
- * private, and once the API is live it is an absolute URL on the backend host
- * rather than a local path. Both cases go through here.
- */
-export function avatarFor(person: Profile): string {
-  if (person.profile_url) return person.profile_url
-  return AVATARS[Math.abs(person.user_id) % AVATARS.length]
-}

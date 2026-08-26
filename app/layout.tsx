@@ -22,7 +22,7 @@ import PersonModal from "@/components/PersonModal"
  */
 
 export const metadata: Metadata = {
-  title: "هویت | کشف افراد بر اساس کشور و شغل",
+  title: "هویت | جستجو بر اساس کشور و شغل",
   description:
     "هویت یک فهرست افراد است. جستجو بر اساس نام و فیلتر بر اساس کشور، شغل و وضعیت ثبت‌نام.",
   applicationName: "هویت",

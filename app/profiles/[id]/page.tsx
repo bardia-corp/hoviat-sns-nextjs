@@ -2,15 +2,16 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import {
-  avatarFor,
   displayName,
   joinedLabel,
+  socialHandle,
   socialLabel,
   socialUrl,
 } from "@/lib/people"
 import { getProfile } from "@/lib/api/profiles"
 import { faDigits } from "@/lib/date"
 import { ExternalIcon, VerifiedIcon } from "@/components/Icons"
+import Avatar from "@/components/Avatar"
 import BookmarkButton from "@/components/BookmarkButton"
 
 /**
@@ -96,26 +97,30 @@ export default async function ProfilePage({ params }: PageProps) {
         </p>
       </header>
 
-      <div className="profile-head">
-        <div className="person__avatar">
-          <img src={avatarFor(person)} alt="" width={96} height={96} />
+      <div className="profile-head glass">
+        <div className="profile-head__main">
+          <div className="person__avatar">
+            <Avatar person={person} size={76} />
+          </div>
+          <div className="profile-head__info">
+            <h1 className="person__name">
+              <span>{name}</span>
+              {person.is_registered ? (
+                <span className="card__badge" title="ثبت‌نام شده">
+                  <VerifiedIcon size={16} />
+                  <span className="sr-only">ثبت‌نام شده</span>
+                </span>
+              ) : null}
+            </h1>
+            {/* One line each, never joined with a separator. */}
+            <p className="person__role">
+              {person.occupation ?? "شغل خصوصی است"}
+            </p>
+            <p className="person__role">
+              {person.country ?? "کشور خصوصی است"}
+            </p>
+          </div>
         </div>
-        <h1 className="person__name">
-          <span>{name}</span>
-          {person.is_registered ? (
-            <span className="card__badge" title="ثبت‌نام شده">
-              <VerifiedIcon size={16} />
-              <span className="sr-only">ثبت‌نام شده</span>
-            </span>
-          ) : null}
-        </h1>
-        {/* One line each, never joined with a separator. */}
-        <p className="person__role">
-          {person.occupation ?? "شغل خصوصی است"}
-        </p>
-        <p className="person__role">
-          {person.country ?? "کشور خصوصی است"}
-        </p>
       </div>
 
       <p className="person__bio">
@@ -129,7 +134,9 @@ export default async function ProfilePage({ params }: PageProps) {
       <div className="panel glass" style={{ marginTop: 20 }}>
         <h2 className="panel__title">راه‌های ارتباط</h2>
         {person.social_links && person.social_links.length > 0 ? (
-          <ul className="social">
+          /* dir="ltr": platform names and handles are Latin; the Persian
+             heading and hint around the list stay RTL. */
+          <ul className="social" dir="ltr">
             {person.social_links.map((link) => (
               <li key={link.id ?? link.platform + link.url}>
                 <a
@@ -138,7 +145,8 @@ export default async function ProfilePage({ params }: PageProps) {
                   target="_blank"
                   rel="noopener noreferrer nofollow"
                 >
-                  {socialLabel(link)}
+                  <span>{socialLabel(link)}</span>
+                  <span className="social__handle">{socialHandle(link)}</span>
                   <ExternalIcon />
                 </a>
               </li>
