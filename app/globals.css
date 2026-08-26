@@ -203,7 +203,8 @@ select {
 .glass--chrome {
   background: var(--glass-bg);
   border: var(--glass-border);
-  box-shadow: var(--glass-shadow);
+  box-shadow: var(--glass-shadow),
+    inset 0 0 12px rgba(14, 58, 110, 0.12);
   -webkit-backdrop-filter: blur(26px) saturate(190%);
   backdrop-filter: blur(26px) saturate(190%);
 }
@@ -831,6 +832,7 @@ select {
   display: grid;
   place-items: center;
   color: #fff;
+  text-decoration: none;
   background: linear-gradient(150deg, var(--orb-top) 0%, var(--orb-mid) 100%);
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85),
     0 3px 10px rgba(11, 138, 232, 0.32);
@@ -927,7 +929,7 @@ select {
   -webkit-backdrop-filter: blur(26px) saturate(190%);
   backdrop-filter: blur(26px) saturate(190%);
   box-shadow: var(--glass-shadow),
-    inset 0 0 0 2px rgba(14, 58, 110, 0.2);
+    inset 0 0 12px rgba(14, 58, 110, 0.16);
   animation: modal-pop 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.08);
 }
 
@@ -1914,8 +1916,9 @@ select {
 }
 
 /* No-picture fallback rendered by components/Avatar.tsx: nickname initials on
-   the same blue gradient the ring already uses. Fills whatever avatar box
-   contains it, so one rule serves every size. */
+   a mostly-black orb with a hint of blue — same inner/outer shadow recipe as
+   the raised nav sphere. Fills whatever avatar box contains it, so one rule
+   serves every size. */
 .avatar-initials {
   width: 100%;
   height: 100%;
@@ -1924,8 +1927,27 @@ select {
   align-items: center;
   justify-content: center;
   border: 2px solid rgba(255, 255, 255, 0.9);
-  background: linear-gradient(150deg, var(--orb-top) 0%, var(--orb-mid) 100%);
-  color: #fff;
+  background: radial-gradient(
+      85% 85% at 32% 20%,
+      rgba(255, 255, 255, 0.35) 0%,
+      rgba(255, 255, 255, 0) 54%
+    ),
+    radial-gradient(
+      120% 120% at 50% 116%,
+      rgba(var(--orb-shade), 0.9) 0%,
+      rgba(var(--orb-shade), 0) 62%
+    ),
+    linear-gradient(
+      172deg,
+      #d6deea 0%,
+      #93a4c1 50%,
+      #697283 100%
+    );
+  box-shadow: inset 0 2px 2px rgba(255, 255, 255, 0.9),
+    inset 0 -9px 16px rgba(var(--orb-shade), 0.55),
+    0 6px 12px rgba(var(--orb-contact), 0.34),
+    0 16px 34px rgba(var(--orb-glow), 0.36);
+  color: var(--orb-text);
   font-weight: 800;
   user-select: none;
 }
@@ -2126,6 +2148,26 @@ select {
     inset 0 -9px 16px rgba(var(--orb-shade), 0.55),
     0 6px 12px rgba(var(--orb-contact), 0.34),
     0 16px 34px rgba(var(--orb-glow), 0.36);
+}
+
+/* The saved bookmark orb reads black instead of blue. Scoped to the card so
+   the login button and mark keep their blue orb. */
+.card .icon-btn--orb {
+  background: radial-gradient(
+      85% 85% at 32% 20%,
+      rgba(255, 255, 255, 0.22) 0%,
+      rgba(255, 255, 255, 0) 54%
+    ),
+    radial-gradient(
+      120% 120% at 50% 116%,
+      rgba(0, 0, 0, 0.7) 0%,
+      rgba(0, 0, 0, 0) 62%
+    ),
+    linear-gradient(172deg, #1f4a78 0%, #12315a 50%, #0a1e3d 100%);
+  box-shadow: inset 0 2px 2px rgba(255, 255, 255, 0.4),
+    inset 0 -9px 16px rgba(4, 22, 46, 0.6),
+    0 6px 12px rgba(8, 40, 90, 0.35),
+    0 16px 34px rgba(10, 60, 130, 0.35);
 }
 
 @media (prefers-reduced-motion: reduce) {

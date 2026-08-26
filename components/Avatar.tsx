@@ -25,7 +25,7 @@ export default function Avatar({
   return (
     <span
       className="avatar-initials"
-      style={{ width: size, height: size, fontSize: Math.round(size * 0.3) }}
+      style={{ width: size, height: size, fontSize: Math.round(size * 0.4) }}
       aria-hidden="true"
     >
       {initials}
