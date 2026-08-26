@@ -24,7 +24,7 @@ export default function BottomNav() {
 
   return (
     <nav className="nav" aria-label="منوی اصلی">
-      <div className="nav__inner glass">
+      <div className="nav__inner glass--chrome">
         {TABS.map(({ href, label, Icon }) => {
           // "/" must match exactly, or every route would light up the
           // dashboard tab. /browse pages belong to Discover.

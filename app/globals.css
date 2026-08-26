@@ -45,35 +45,22 @@
 
   /* --- Background ------------------------------------------------------
      Four stops of the base wash, then six coloured fields blurred on top.
-     Raise the wash stops toward #ffffff for a whiter page. */
-  --bg-page: #DCEEF9;
-  --wash-1: #FFFFFF;
-  --wash-2: #F2FAFE;
-  --wash-3: #DDEFFA;
-  --wash-4: #FBFDFF;
-
-  --blob-a: 96, 208, 250;
-  --blob-b: 40, 158, 230;
-  --blob-c: 130, 220, 250;
-  --blob-d: 0, 142, 210;
-  --blob-e: 120, 214, 246;
-  --blob-f: 46, 168, 226;
-
-  /* Blob strength. One dial for how much colour sits over the white. */
-  --blob-strength: 0.62;
+     Colours follow the earlier art direction: a whiter wash and brighter,
+     more saturated cyan-blue blobs. */
+  --bg-page: #EAF4FD;
+  --wash-1: #FCFDFF;
+  --wash-2: #F0F8FE;
+  --wash-3: #E3F1FD;
+  --wash-4: #F7FBFF;
 
   /* --- Grid ------------------------------------------------------------ */
-  --grid-line: 18, 92, 156;
-  --grid-alpha: 0.03;
+  --grid-line: 43, 120, 200;
+  --grid-alpha: 0.15;
   --grid-size: 46px;
 
-  /* --- Glitter ---------------------------------------------------------- */
-  --glitter: 255, 255, 255;
-  --glitter-alpha: 0.9;
-
   /* --- Glass ------------------------------------------------------------
-     Panels, cards, nav, search bar. Lower alphas mean more of the background
-     reads through, which is what makes it look like glass rather than paint. */
+     The chrome (header + bottom nav) glass. Content surfaces (.glass) are
+     defined separately below and are brighter and more opaque. */
   --glass-tint: 255, 255, 255;
   --glass-alpha-top: 0.52;
   --glass-alpha-bottom: 0.28;
@@ -186,10 +173,34 @@ select {
 }
 
 /* --------------------------------------------------------------------------
-   Glass surface
+   Glass surfaces
+
+   Two kinds, kept apart on purpose:
+
+   .glass           content - cards, panels, sections. Brighter and more opaque,
+                    matching the earlier art direction, so text stays readable
+                    over the aurora.
+   .glass--chrome   the fixed header and bottom nav. More translucent, so they
+                    read as a layer floating above the page.
+
+   The modal keeps its own heavier surface further down and is neither of these.
    -------------------------------------------------------------------------- */
 
 .glass {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.82) 0%,
+    rgba(255, 255, 255, 0.62) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 1px 2px rgba(14, 58, 110, 0.05),
+    0 14px 34px rgba(14, 74, 150, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+  backdrop-filter: blur(20px) saturate(170%);
+}
+
+.glass--chrome {
   background: var(--glass-bg);
   border: var(--glass-border);
   box-shadow: var(--glass-shadow);
@@ -231,8 +242,8 @@ select {
   height: 40%;
   background: radial-gradient(
     circle,
-    rgba(var(--blob-a), var(--blob-strength)) 0%,
-    rgba(var(--blob-a), 0) 70%
+    rgba(124, 222, 255, 0.95) 0%,
+    rgba(124, 222, 255, 0) 70%
   );
 }
 
@@ -243,8 +254,8 @@ select {
   height: 44%;
   background: radial-gradient(
     circle,
-    rgba(var(--blob-b), var(--blob-strength)) 0%,
-    rgba(var(--blob-b), 0) 70%
+    rgba(72, 168, 255, 0.92) 0%,
+    rgba(72, 168, 255, 0) 70%
   );
 }
 
@@ -260,7 +271,7 @@ select {
     90deg,
     rgba(255, 255, 255, 0) 0%,
     rgba(255, 255, 255, 0.92) 28%,
-    rgba(var(--blob-c), var(--blob-strength)) 56%,
+    rgba(146, 231, 255, 0.9) 56%,
     rgba(255, 255, 255, 0) 100%
   );
 }
@@ -273,8 +284,8 @@ select {
   filter: blur(52px);
   background: radial-gradient(
     circle,
-    rgba(var(--blob-d), var(--blob-strength)) 0%,
-    rgba(var(--blob-d), 0) 70%
+    rgba(0, 148, 255, 0.62) 0%,
+    rgba(0, 148, 255, 0) 70%
   );
 }
 
@@ -285,8 +296,8 @@ select {
   height: 40%;
   background: radial-gradient(
     circle,
-    rgba(var(--blob-e), var(--blob-strength)) 0%,
-    rgba(var(--blob-e), 0) 70%
+    rgba(158, 234, 255, 0.82) 0%,
+    rgba(158, 234, 255, 0) 70%
   );
 }
 
@@ -298,8 +309,8 @@ select {
   filter: blur(56px);
   background: radial-gradient(
     circle,
-    rgba(var(--blob-f), var(--blob-strength)) 0%,
-    rgba(var(--blob-f), 0) 70%
+    rgba(86, 186, 255, 0.55) 0%,
+    rgba(86, 186, 255, 0) 70%
   );
 }
 
@@ -339,7 +350,7 @@ select {
   z-index: 1;
   max-width: 520px;
   margin: 0 auto;
-  padding: 0 var(--pad) 132px;
+  padding: 96px var(--pad) 132px;
   min-height: 100svh;
 }
 
@@ -348,7 +359,7 @@ select {
    -------------------------------------------------------------------------- */
 
 .hero {
-  padding-top: 46px;
+  padding-top: 8px;
 }
 
 .hero__eyebrow {
@@ -741,6 +752,98 @@ select {
   line-height: 1.5;
   color: var(--ink-2);
   list-style: none;
+}
+
+/* --------------------------------------------------------------------------
+   Top bar
+   Mirrors the bottom nav: the same floating chrome glass pill, fixed to the
+   top. Brand on one side, login / profile on the other.
+   -------------------------------------------------------------------------- */
+
+.header {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 18px;
+  z-index: 40;
+  padding: 0 var(--pad);
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.header__inner {
+  pointer-events: auto;
+  width: 100%;
+  max-width: 476px;
+  height: 60px;
+  padding: 0 12px 0 18px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.header__brand img {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: block;
+}
+
+.header__wordmark {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.header__login {
+  flex: 0 0 auto;
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 999px;
+  border: 0;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: #fff;
+}
+
+.header__profile {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: linear-gradient(150deg, var(--orb-top) 0%, var(--orb-mid) 100%);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85),
+    0 3px 10px rgba(11, 138, 232, 0.32);
+}
+
+.header__profile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.header__profile .avatar-initials {
+  border: 0;
 }
 
 /* --------------------------------------------------------------------------
@@ -1297,7 +1400,8 @@ select {
 .btn--orb,
 .pill--active,
 .modal__btn--primary,
-.chip--active {
+.chip--active,
+.header__login {
   color: #fff;
   border: 0;
   background: radial-gradient(
@@ -1683,7 +1787,7 @@ select {
   z-index: 1;
   max-width: 520px;
   margin: 0 auto;
-  padding: 0 var(--pad) 60px;
+  padding: 96px var(--pad) 60px;
   min-height: 100svh;
   display: flex;
   flex-direction: column;
@@ -2033,113 +2137,18 @@ select {
 }
 
 /* ==========================================================================
-   Glitter
-   Sparse, soft glints rather than hard dots. Small radial gradients with a
-   slow opacity breathe. Only opacity animates and the layer is not blurred,
-   so this stays cheap.
+   Sparks
+   A handful of small white glints, matching the earlier art direction.
+   Static - they never animate, so they cost nothing.
    ========================================================================== */
 
-.aurora__glitter {
+.aurora__spark {
   position: absolute;
-  inset: 0;
-  background-image: radial-gradient(
-      1.5px 1.5px at 12% 18%,
-      rgba(var(--glitter), var(--glitter-alpha)) 0%,
-      rgba(var(--glitter), 0) 100%
-    ),
-    radial-gradient(
-      2px 2px at 78% 12%,
-      rgba(var(--glitter), var(--glitter-alpha)) 0%,
-      rgba(var(--glitter), 0) 100%
-    ),
-    radial-gradient(
-      1.5px 1.5px at 32% 42%,
-      rgba(var(--glitter), var(--glitter-alpha)) 0%,
-      rgba(var(--glitter), 0) 100%
-    ),
-    radial-gradient(
-      2.5px 2.5px at 62% 34%,
-      rgba(var(--glitter), var(--glitter-alpha)) 0%,
-      rgba(var(--glitter), 0) 100%
-    ),
-    radial-gradient(
-      1.5px 1.5px at 88% 52%,
-      rgba(var(--glitter), var(--glitter-alpha)) 0%,
-      rgba(var(--glitter), 0) 100%
-    ),
-    radial-gradient(
-      2px 2px at 18% 66%,
-      rgba(var(--glitter), var(--glitter-alpha)) 0%,
-      rgba(var(--glitter), 0) 100%
-    ),
-    radial-gradient(
-      1.5px 1.5px at 48% 78%,
-      rgba(var(--glitter), var(--glitter-alpha)) 0%,
-      rgba(var(--glitter), 0) 100%
-    ),
-    radial-gradient(
-      2px 2px at 72% 88%,
-      rgba(var(--glitter), var(--glitter-alpha)) 0%,
-      rgba(var(--glitter), 0) 100%
-    );
-  background-repeat: no-repeat;
-  animation: glitter 7s ease-in-out infinite;
-}
-
-.aurora__glitter--2 {
-  background-image: radial-gradient(
-      2px 2px at 26% 8%,
-      rgba(var(--glitter), var(--glitter-alpha)) 0%,
-      rgba(var(--glitter), 0) 100%
-    ),
-    radial-gradient(
-      1.5px 1.5px at 54% 22%,
-      rgba(var(--glitter), var(--glitter-alpha)) 0%,
-      rgba(var(--glitter), 0) 100%
-    ),
-    radial-gradient(
-      2px 2px at 8% 38%,
-      rgba(var(--glitter), var(--glitter-alpha)) 0%,
-      rgba(var(--glitter), 0) 100%
-    ),
-    radial-gradient(
-      1.5px 1.5px at 92% 30%,
-      rgba(var(--glitter), var(--glitter-alpha)) 0%,
-      rgba(var(--glitter), 0) 100%
-    ),
-    radial-gradient(
-      2px 2px at 38% 58%,
-      rgba(var(--glitter), var(--glitter-alpha)) 0%,
-      rgba(var(--glitter), 0) 100%
-    ),
-    radial-gradient(
-      1.5px 1.5px at 66% 70%,
-      rgba(var(--glitter), var(--glitter-alpha)) 0%,
-      rgba(var(--glitter), 0) 100%
-    ),
-    radial-gradient(
-      2px 2px at 14% 86%,
-      rgba(var(--glitter), var(--glitter-alpha)) 0%,
-      rgba(var(--glitter), 0) 100%
-    ),
-    radial-gradient(
-      1.5px 1.5px at 84% 74%,
-      rgba(var(--glitter), var(--glitter-alpha)) 0%,
-      rgba(var(--glitter), 0) 100%
-    );
-  /* Offset phase so the two layers never pulse together. */
-  animation-duration: 9s;
-  animation-delay: -3s;
-}
-
-@keyframes glitter {
-  0%,
-  100% {
-    opacity: 0.35;
-  }
-  50% {
-    opacity: 0.95;
-  }
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.95);
 }
 
 /* ==========================================================================
@@ -2352,13 +2361,6 @@ a.btn-add {
   display: flex;
   flex-direction: column;
   gap: 10px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .aurora__glitter {
-    animation: none;
-    opacity: 0.6;
-  }
 }
 
 /* ==========================================================================

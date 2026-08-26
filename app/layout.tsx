@@ -3,6 +3,7 @@ import { Suspense } from "react"
 import "./globals.css"
 import AuroraBackground from "@/components/AuroraBackground"
 import BottomNav from "@/components/BottomNav"
+import Header from "@/components/Header"
 import { AuthProvider } from "@/components/AuthProvider"
 import { BookmarksProvider } from "@/components/BookmarksProvider"
 import { PersonModalProvider } from "@/components/PersonModalProvider"
@@ -64,6 +65,7 @@ export default function RootLayout({
           <BookmarksProvider>
             <PersonModalProvider>
               <AuroraBackground />
+              <Header />
               {/* NavProgressProvider reads the query string to know when a
                   navigation finished, and useSearchParams has to sit inside a
                   Suspense boundary or it opts every page out of static
