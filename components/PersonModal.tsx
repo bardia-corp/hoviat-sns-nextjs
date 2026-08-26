@@ -82,7 +82,7 @@ export default function PersonModal() {
       }}
     >
       <div
-        className="modal"
+        className="modal modal--person"
         role="dialog"
         aria-modal="true"
         aria-label={name}
