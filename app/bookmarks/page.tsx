@@ -101,7 +101,7 @@ export default function BookmarksPage() {
           <Link href="/discover" style={{ fontWeight: 700 }}>
             جستجو
           </Link>{" "}
-          روی علامت به‌علاوه‌ی هر کس بزنید تا اینجا ذخیره شود.
+          روی علامت به‌علاوه‌ی هر شخصی بزنید تا اینجا ذخیره شود.
         </div>
       ) : (
         <ResultsList people={people ?? []} />

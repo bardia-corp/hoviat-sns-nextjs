@@ -47,7 +47,7 @@ export default async function DashboardPage() {
         <header className="hero">
           <h1 className="hero__title">خوش آمدید</h1>
           <p className="hero__sub">
-            افراد را بر اساس کشور و شغل پیدا کنید و هر کس را که برایتان مهم
+            افراد را بر اساس کشور و شغل پیدا کنید و هر شخصی را که برایتان مهم
             است در ذخیره‌ها نگه دارید.
           </p>
         </header>
