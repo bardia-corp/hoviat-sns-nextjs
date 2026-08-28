@@ -953,6 +953,15 @@ select {
   }
 }
 
+/* Mobile: the filter dialog sits near the top of the screen, so when the
+   on-screen keyboard opens over the free-text or search fields it covers
+   empty space instead of the dialog. */
+@media (max-width: 640px) {
+  .modal-overlay--filter {
+    place-items: start center;
+  }
+}
+
 .modal__head {
   display: flex;
   align-items: center;

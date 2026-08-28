@@ -35,7 +35,6 @@ import {
   COUNTRIES,
   COUNTRY_SUGGESTIONS,
   OCCUPATIONS,
-  OCCUPATION_SUGGESTIONS,
   suggestionMatches,
 } from "@/lib/vocab"
 import {
@@ -410,23 +409,23 @@ function InfoSection({
 
           <div className="field">
             <p className="field__label">شغل</p>
-            <Picker
-              label="شغل"
-              placeholder="انتخاب شغل"
-              options={OCCUPATIONS}
-              searchable
-              allowCustom
-              matchOption={(option, needle) => {
-                const suggestion = OCCUPATION_SUGGESTIONS.find(
-                  (item) => item.value === option,
-                )
-                return suggestion
-                  ? suggestionMatches(suggestion, needle)
-                  : option.includes(needle)
-              }}
+            {/* Free text: the list only suggests, the backend stores whatever
+                is typed. */}
+            <input
+              className="field__input"
+              type="text"
+              list="profile-occupation-options"
+              placeholder="مثلاً پزشک"
               value={draft.occupation}
-              onChange={(next) => setDraft({ ...draft, occupation: next })}
+              onChange={(event) =>
+                setDraft({ ...draft, occupation: event.target.value })
+              }
             />
+            <datalist id="profile-occupation-options">
+              {OCCUPATIONS.map((occupation) => (
+                <option key={occupation} value={occupation} />
+              ))}
+            </datalist>
             <p className="field__hint">
               دیگران با جستجوی همین شغل، شما را پیدا می‌کنند.
             </p>

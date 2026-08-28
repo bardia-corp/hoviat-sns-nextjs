@@ -28,7 +28,6 @@ import {
   COUNTRIES,
   COUNTRY_SUGGESTIONS,
   OCCUPATIONS,
-  OCCUPATION_SUGGESTIONS,
   suggestionMatches,
 } from "@/lib/vocab"
 import { CloseIcon } from "./Icons"
@@ -96,7 +95,7 @@ export default function FilterModal({
 
   return (
     <div
-      className="modal-overlay"
+      className="modal-overlay modal-overlay--filter"
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose()
       }}
@@ -152,28 +151,26 @@ export default function FilterModal({
 
         <div className="modal__group">
           <p className="modal__label">شغل</p>
-          <Picker
-            searchable
-            allowCustom
-            matchOption={(option, needle) => {
-              const suggestion = OCCUPATION_SUGGESTIONS.find(
-                (item) => item.value === option,
-              )
-              return suggestion
-                ? suggestionMatches(suggestion, needle)
-                : option.includes(needle)
-            }}
-            label="شغل"
+          {/* Free text on purpose: the list only suggests, and whatever is
+              typed is what gets sent. */}
+          <input
+            className="field__input"
+            type="text"
+            list="filter-occupation-options"
             placeholder="همه شغل‌ها"
-            options={OCCUPATIONS}
             value={draft.occupation ?? ""}
-            onChange={(next) =>
+            onChange={(event) =>
               setDraft((current) => ({
                 ...current,
-                occupation: next || undefined,
+                occupation: event.target.value || undefined,
               }))
             }
           />
+          <datalist id="filter-occupation-options">
+            {OCCUPATIONS.map((occupation) => (
+              <option key={occupation} value={occupation} />
+            ))}
+          </datalist>
         </div>
 
         <div className="modal__group">
