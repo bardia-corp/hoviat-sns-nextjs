@@ -1,142 +1,65 @@
 "use client"
 
-/**
- * Navigation progress.
- *
- * The problem this solves: with server-rendered routes, tapping a link starts
- * a network round trip and React keeps the current screen on screen until the
- * response arrives. A route-level loading.tsx does not help as much as it
- * looks like it should, because it only covers a segment actually being
- * entered, and it does nothing at all when only the query string changes,
- * which on the search page is most navigations. So the screen appears to
- * freeze.
- *
- * The fix has two halves. Here, a bar appears the instant a navigation starts
- * and the outgoing screen dims, so the wait is legible immediately. In the
- * search page, the results are wrapped in Suspense keyed by the query, so a
- * filter change re-suspends and shows skeletons.
- *
- * Starting the bar is automatic: a capture-phase click listener catches any
- * internal link, so every anchor in the app is covered without touching them
- * individually. Programmatic navigations call start() themselves.
- *
- * It stops when the URL actually changes, which is the only reliable signal
- * that the new route has been committed.
- */
-
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react"
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
 import { usePathname, useSearchParams } from "next/navigation"
+import "./navigation-loading.css"
 
-type NavValue = { pending: boolean; start: () => void; stop: () => void }
-
+type NavValue = { pending: boolean; target: string | null; start: (href?: string) => void; stop: () => void }
 const NavContext = createContext<NavValue | null>(null)
 
-/* Long waits are the reason this exists, but a stuck bar is worse than no
-   bar, so it always clears itself. */
-const SAFETY_TIMEOUT = 12000
-
-export function NavProgressProvider({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export function NavProgressProvider({ children, navigation }: { children: React.ReactNode; navigation?: React.ReactNode }) {
   const [pending, setPending] = useState(false)
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
+  const [target, setTarget] = useState<string | null>(null)
+  const pathname = usePathname() || "/"
+  const params = useSearchParams()
+  const current = pathname + (params?.toString() ? "?" + params.toString() : "")
+  const stop = useCallback(() => { setPending(false); setTarget(null) }, [])
+  const start = useCallback((href?: string) => { setTarget(href || null); setPending(true) }, [])
 
-  const start = useCallback(() => setPending(true), [])
-  const stop = useCallback(() => setPending(false), [])
-
-  /* The URL changed, so the new route is committed. */
   useEffect(() => {
-    setPending(false)
-  }, [pathname, searchParams])
-
+    if (!target || target === current) stop()
+  }, [current, target, stop])
   useEffect(() => {
     if (!pending) return
-    const timer = window.setTimeout(() => setPending(false), SAFETY_TIMEOUT)
+    const timer = window.setTimeout(stop, 15000)
     return () => window.clearTimeout(timer)
-  }, [pending])
-
+  }, [pending, target, stop])
   useEffect(() => {
-    function onClick(event: MouseEvent) {
-      /* Let the browser handle modified clicks: they open tabs and windows
-         rather than navigating this one. */
-      if (
-        event.defaultPrevented ||
-        event.button !== 0 ||
-        event.metaKey ||
-        event.ctrlKey ||
-        event.shiftKey ||
-        event.altKey
-      ) {
-        return
-      }
-
-      const anchor = (event.target as HTMLElement | null)?.closest?.("a")
-      if (!anchor) return
-
+    function click(event: MouseEvent) {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+      const anchor = (event.target as Element | null)?.closest?.("a")
+      if (!anchor || anchor.target && anchor.target !== "_self" || anchor.hasAttribute("download") || anchor.getAttribute("aria-disabled") === "true") return
       const href = anchor.getAttribute("href")
-      if (!href) return
-
-      /* External, new tab, downloads, and in-page anchors are not route
-         changes. */
-      if (
-        anchor.target === "_blank" ||
-        anchor.hasAttribute("download") ||
-        href.startsWith("#") ||
-        href.startsWith("mailto:") ||
-        href.startsWith("tel:") ||
-        /^https?:\/\//i.test(href)
-      ) {
-        return
-      }
-
-      if (anchor.getAttribute("aria-disabled") === "true") return
-
-      /* Same URL means no navigation and therefore no completion event, so
-         the bar would hang. */
-      const current =
-        pathname + (searchParams?.toString() ? "?" + searchParams : "")
-      if (href === current || href === pathname) return
-
-      setPending(true)
+      if (!href || href.startsWith("#")) return
+      const url = new URL(href, window.location.href)
+      if (url.origin !== window.location.origin || !["http:", "https:"].includes(url.protocol)) return
+      const destination = url.pathname + url.search
+      if (destination !== current) start(destination)
     }
+    document.addEventListener("click", click, true)
+    window.addEventListener("popstate", stop)
+    return () => { document.removeEventListener("click", click, true); window.removeEventListener("popstate", stop) }
+  }, [current, start, stop])
 
-    document.addEventListener("click", onClick, true)
-    return () => document.removeEventListener("click", onClick, true)
-  }, [pathname, searchParams])
-
-  const value = useMemo<NavValue>(
-    () => ({ pending, start, stop }),
-    [pending, start, stop]
-  )
-
-  return (
-    <NavContext.Provider value={value}>
-      {pending ? (
-        <div
-          className="navbar-progress"
-          role="progressbar"
-          aria-label="در حال بارگذاری"
-        >
-          <div className="navbar-progress__bar" />
-        </div>
-      ) : null}
-      <div className={pending ? "pending-veil" : undefined}>{children}</div>
-    </NavContext.Provider>
-  )
+  const switchingPage = pending && !!target && target.split("?")[0] !== pathname
+  useEffect(() => {
+    if (!switchingPage) return
+    const before = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    return () => { document.body.style.overflow = before }
+  }, [switchingPage])
+  const value = useMemo(() => ({ pending, target, start, stop }), [pending, target, start, stop])
+  return <NavContext.Provider value={value}>
+    {pending && <div className="navbar-progress" role="progressbar" aria-label="در حال بارگذاری"><div className="navbar-progress__bar" /></div>}
+    <div className={pending && !switchingPage ? "pending-veil" : undefined} inert={switchingPage || undefined} aria-hidden={switchingPage || undefined}>{children}</div>
+    {switchingPage && <div className="nav-destination-loading" role="status" aria-live="polite"><div className="nav-destination-loading__content" key={target}>
+      <p>در حال باز کردن صفحه…</p><div className="skeleton nav-loading-title" /><div className="skeleton nav-loading-subtitle" />
+      {[0, 1, 2].map((item) => <div className="nav-loading-card" key={item}><div className="skeleton nav-loading-avatar" /><div><div className="skeleton" /><div className="skeleton" /></div></div>)}
+    </div></div>}
+    {navigation}
+  </NavContext.Provider>
 }
 
 export function useNavProgress(): NavValue {
-  const value = useContext(NavContext)
-  /* Usable outside the provider so components stay independently testable. */
-  return value ?? { pending: false, start: () => {}, stop: () => {} }
+  return useContext(NavContext) ?? { pending: false, target: null, start: () => {}, stop: () => {} }
 }

@@ -1,111 +1,36 @@
 import type { Metadata } from "next"
-import { Suspense } from "react"
-import {
-  buildSearchHref,
-  hasExtraWords,
-  parseSearchParams,
-  type RawParams,
-  type SearchQuery,
-} from "@/lib/search"
-import { searchProfiles } from "@/lib/api/profiles"
-import { describeQuery, descriptionFor, titleFor } from "@/lib/seo"
+import { getBusinessCategories, getBusinessLocations, searchBusinesses } from "@/lib/api/businesses"
+import { businessSearchHref, parseBusinessQuery } from "@/lib/business-search"
+import type { RawParams } from "@/lib/search"
 import { faDigits } from "@/lib/date"
-import DiscoverControls from "@/components/DiscoverControls"
-import ResultsList from "@/components/ResultsList"
+import BusinessFilters from "@/components/BusinessFilters"
+import BusinessList from "@/components/BusinessList"
+import { BusinessBookmarkStatus } from "@/components/BusinessBookmarksProvider"
 import Pagination from "@/components/Pagination"
-import { CardListSkeleton } from "@/components/Skeleton"
+import "../search-redesign.css"
 
-/**
- * Discover: the search page, and the SEO-critical route.
- *
- * This is a server component. It reads the filters straight out of the URL and
- * renders the matching results into the initial HTML, so a crawler hitting
- * /discover?country=<country>&occupation=<occupation> sees the actual list
- * rather than an empty shell that fills in after hydration. The title and
- * description are generated from the same filters.
- *
- * The results sit inside Suspense, keyed by the query. That key is the whole
- * trick behind the loading state: changing a filter only changes the query
- * string, which is the same route, so Next reuses this page and loading.tsx
- * never fires. A new key makes React treat the boundary as new, so the
- * skeletons come back for every filter change instead of the screen sitting
- * frozen while the server works.
- *
- * The header renders outside the boundary, so it paints immediately.
- *
- * In Next 15 searchParams is a promise, hence the await.
- */
+export const metadata: Metadata = { title: "کشف کسب‌وکارها | هویت", description: "کسب‌وکارها و خدمات مرتبط با جامعهٔ فارسی‌زبان را در آلمان پیدا کنید." }
 
-type PageProps = { searchParams: Promise<RawParams> }
-
-export async function generateMetadata({
-  searchParams,
-}: PageProps): Promise<Metadata> {
-  const query = parseSearchParams(await searchParams)
-  const { meta } = await searchProfiles(query)
-
-  return {
-    title: titleFor(query),
-    description: descriptionFor(query, meta.total),
-    alternates: { canonical: buildSearchHref(query) },
-    // Empty result pages are real pages, but there is nothing to index on
-    // them and they can be generated endlessly from query strings.
-    robots: meta.total === 0 ? { index: false, follow: true } : undefined,
-  }
-}
-
-async function Results({ query }: { query: SearchQuery }) {
-  const { data, meta } = await searchProfiles(query)
-
-  return (
-    <>
-      <div className="section">
-        <h2 className="section__title">نتایج</h2>
-        {/* The total only. A "1-7 of 100" range restates what the pager
-            already shows and reads as noise. */}
-        <p className="section__count">{faDigits(meta.total)} نتیجه</p>
-      </div>
-
-      <ResultsList people={data} />
-
-      <Pagination
-        page={meta.page}
-        pages={meta.pages}
-        hrefForPage={(page) => buildSearchHref(query, { page })}
-      />
-    </>
-  )
-}
-
-export default async function DiscoverPage({ searchParams }: PageProps) {
-  const params = await searchParams
-  const query = parseSearchParams(params)
-  const rawQuery = Array.isArray(params.q) ? params.q[0] : params.q
-  const heading = describeQuery(query)
-
-  return (
-    <main className="screen">
-      <header className="hero">
-        <h1 className="hero__title hero__title--sm">{heading}</h1>
-      </header>
-
-      <DiscoverControls query={query} />
-
-      {/* The server uses at most five words from q and ignores the rest
-          silently. Saying so is better than showing results that quietly
-          answer a shorter question than the one asked. */}
-      {hasExtraWords(rawQuery) ? (
-        <p className="panel__hint" style={{ marginBottom: 12 }}>
-          جستجو فقط پنج واژه‌ی اول را در نظر می‌گیرد.
-        </p>
-      ) : null}
-
-      <Suspense
-        key={JSON.stringify(query)}
-        fallback={<CardListSkeleton count={7} />}
-      >
-        <Results query={query} />
-      </Suspense>
-    </main>
-  )
+export default async function DiscoverPage({ searchParams }: { searchParams: Promise<RawParams> }) {
+  const query = parseBusinessQuery(await searchParams)
+  const outcomes = await Promise.allSettled([
+    searchBusinesses(query), getBusinessLocations(), getBusinessCategories(query.country_code),
+  ])
+  const result = outcomes[0].status === "fulfilled" ? outcomes[0].value : null
+  const locations = outcomes[1].status === "fulfilled" ? outcomes[1].value : []
+  const categories = outcomes[2].status === "fulfilled" ? outcomes[2].value : []
+  return <main className="screen business-screen discovery-page">
+    <header className="hero search-hero"><p className="hero__eyebrow">کشف کسب‌وکارها</p>
+      <h1 className="hero__title">خدمات مورد نیازتان را پیدا کنید</h1>
+      <p className="hero__sub">خدمات فارسی‌زبان و کسب‌وکارهای ایرانی؛ در شهر شما.</p>
+    </header>
+    <BusinessFilters key={businessSearchHref(query)} query={query} locations={locations} categories={categories} />
+    {(outcomes[1].status === "rejected" || outcomes[2].status === "rejected") && <p className="business-notice" role="status">پیشنهادهای شهر یا دسته‌بندی فعلاً در دسترس نیستند. می‌توانید با نام و موقعیت جستجو کنید.</p>}
+    <BusinessBookmarkStatus />
+    {result ? <>
+      <div className="section"><h2 className="section__title">نتایج جستجو</h2><p className="section__count">{faDigits(result.meta.total)} کسب‌وکار</p></div>
+      <BusinessList businesses={result.data} returnTo={businessSearchHref(query)} />
+      <Pagination page={result.meta.page} pages={result.meta.pages} hrefForPage={(page) => businessSearchHref(query, { page })} />
+    </> : <div className="business-notice" role="alert"><h2>دریافت کسب‌وکارها ممکن نشد</h2><p>ارتباط با سرویس برقرار نشد یا تعداد درخواست‌ها زیاد است. کمی بعد دوباره تلاش کنید.</p><a className="business-text-link" href={businessSearchHref(query)}>تلاش دوباره</a></div>}
+  </main>
 }

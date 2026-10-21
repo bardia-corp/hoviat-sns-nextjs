@@ -1,53 +1,35 @@
 "use client"
 
-/**
- * Bottom navigation.
- *
- * Real links, not tab state: each destination is its own route, so the nav has
- * to be anchors for back/forward, deep links and prefetching to work. The
- * raised blue sphere follows the active route via usePathname.
- */
-
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BookmarkIcon, HomeIcon, SearchIcon, UserIcon } from "./Icons"
+import { useNavProgress } from "./NavProgress"
+import UIIcon, { type UIIconName } from "./UIIcon"
+import "./bottom-nav.css"
 
-const TABS = [
-  { href: "/", label: "خانه", Icon: HomeIcon },
-  { href: "/discover", label: "جستجو", Icon: SearchIcon },
-  { href: "/bookmarks", label: "ذخیره‌ها", Icon: BookmarkIcon },
-  { href: "/profile", label: "پروفایل", Icon: UserIcon },
+const TABS: { href: string; label: string; icon: UIIconName }[] = [
+  { href: "/", label: "خانه", icon: "home" },
+  { href: "/discover", label: "جست‌وجو", icon: "search" },
+  { href: "/business-bookmarks", label: "ذخیره‌ها", icon: "bookmark" },
+  { href: "/my-businesses", label: "کسب‌وکار من", icon: "store" },
+  { href: "/profile", label: "پروفایل", icon: "user" },
 ]
 
 export default function BottomNav() {
   const pathname = usePathname() || "/"
-
-  return (
-    <nav className="nav" aria-label="منوی اصلی">
-      <div className="nav__inner glass--chrome">
-        {TABS.map(({ href, label, Icon }) => {
-          // "/" must match exactly, or every route would light up the
-          // dashboard tab. /browse pages belong to Discover.
-          const active =
-            href === "/"
-              ? pathname === "/"
-              : pathname === href ||
-                pathname.startsWith(href + "/") ||
-                (href === "/discover" && pathname.startsWith("/browse"))
-
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={active ? "nav__item nav__item--active" : "nav__item"}
-              aria-current={active ? "page" : undefined}
-            >
-              <Icon />
-              <span className="sr-only">{label}</span>
-            </Link>
-          )
-        })}
-      </div>
-    </nav>
-  )
+  const { target, pending, start, stop } = useNavProgress()
+  const displayed = pending && target ? target.split("?")[0] : pathname
+  const matches = (path: string, href: string) => href === "/" ? path === "/" : path === href || path.startsWith(href + "/") || (href === "/discover" && (path.startsWith("/browse") || path.startsWith("/businesses/")))
+  const index = TABS.findIndex(({ href }) => matches(displayed, href))
+  return <nav className="nav main-nav" aria-label="منوی اصلی"><div className="nav__inner glass" style={{ "--active-tab": index < 0 ? 0 : index } as React.CSSProperties}>
+    {index >= 0 && <span className="main-nav__indicator" aria-hidden="true" />}
+    {TABS.map(({ href, label, icon }) => {
+      const active = matches(displayed, href)
+      return <Link key={href} href={href} className={`main-nav__link${active ? " main-nav__link--active" : ""}`} aria-current={matches(pathname, href) ? "page" : undefined} onClick={(event) => {
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+        if (href === window.location.pathname + window.location.search) stop(); else start(href)
+      }}>
+        <span className="main-nav__icon"><UIIcon name={icon} size={24} /></span><span className="main-nav__label">{label}</span>
+      </Link>
+    })}
+  </div></nav>
 }

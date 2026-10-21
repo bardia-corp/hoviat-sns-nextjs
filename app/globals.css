@@ -45,22 +45,35 @@
 
   /* --- Background ------------------------------------------------------
      Four stops of the base wash, then six coloured fields blurred on top.
-     Colours follow the earlier art direction: a whiter wash and brighter,
-     more saturated cyan-blue blobs. */
-  --bg-page: #EAF4FD;
-  --wash-1: #FCFDFF;
-  --wash-2: #F0F8FE;
-  --wash-3: #E3F1FD;
-  --wash-4: #F7FBFF;
+     Raise the wash stops toward #ffffff for a whiter page. */
+  --bg-page: #DCEEF9;
+  --wash-1: #FFFFFF;
+  --wash-2: #F2FAFE;
+  --wash-3: #DDEFFA;
+  --wash-4: #FBFDFF;
+
+  --blob-a: 96, 208, 250;
+  --blob-b: 40, 158, 230;
+  --blob-c: 130, 220, 250;
+  --blob-d: 0, 142, 210;
+  --blob-e: 120, 214, 246;
+  --blob-f: 46, 168, 226;
+
+  /* Blob strength. One dial for how much colour sits over the white. */
+  --blob-strength: 0.62;
 
   /* --- Grid ------------------------------------------------------------ */
-  --grid-line: 43, 120, 200;
-  --grid-alpha: 0.15;
+  --grid-line: 18, 92, 156;
+  --grid-alpha: 0.03;
   --grid-size: 46px;
 
+  /* --- Glitter ---------------------------------------------------------- */
+  --glitter: 255, 255, 255;
+  --glitter-alpha: 0.9;
+
   /* --- Glass ------------------------------------------------------------
-     The chrome (header + bottom nav) glass. Content surfaces (.glass) are
-     defined separately below and are brighter and more opaque. */
+     Panels, cards, nav, search bar. Lower alphas mean more of the background
+     reads through, which is what makes it look like glass rather than paint. */
   --glass-tint: 255, 255, 255;
   --glass-alpha-top: 0.52;
   --glass-alpha-bottom: 0.28;
@@ -112,41 +125,6 @@ body {
   border-radius: 6px;
 }
 
-/* --------------------------------------------------------------------------
-   Scrollbars
-   Thin, translucent and unobtrusive everywhere — the page, the modal and the
-   picker dropdown all scroll, and none of them should grow a chunky native
-   bar. The thumb only darkens slightly on hover; the track stays invisible.
-   -------------------------------------------------------------------------- */
-
-* {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(11, 90, 158, 0.28) transparent;
-}
-
-::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  border-radius: 999px;
-  background: rgba(11, 90, 158, 0.26);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(11, 90, 158, 0.45);
-}
-
-::-webkit-scrollbar-corner {
-  background: transparent;
-}
-
 .sr-only {
   position: absolute;
   width: 1px;
@@ -163,48 +141,14 @@ a {
   color: inherit;
 }
 
-/* Form controls and buttons do not inherit the page font by default; without
-   this they fall back to the system stack and break the Vazirmatn rule. */
-button,
-input,
-textarea,
-select {
-  font-family: inherit;
-}
-
 /* --------------------------------------------------------------------------
-   Glass surfaces
-
-   Two kinds, kept apart on purpose:
-
-   .glass           content - cards, panels, sections. Brighter and more opaque,
-                    matching the earlier art direction, so text stays readable
-                    over the aurora.
-   .glass--chrome   the fixed header and bottom nav. More translucent, so they
-                    read as a layer floating above the page.
-
-   The modal keeps its own heavier surface further down and is neither of these.
+   Glass surface
    -------------------------------------------------------------------------- */
 
 .glass {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.82) 0%,
-    rgba(255, 255, 255, 0.62) 100%
-  );
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 1px 2px rgba(14, 58, 110, 0.05),
-    0 14px 34px rgba(14, 74, 150, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.95);
-  -webkit-backdrop-filter: blur(20px) saturate(170%);
-  backdrop-filter: blur(20px) saturate(170%);
-}
-
-.glass--chrome {
   background: var(--glass-bg);
   border: var(--glass-border);
-  box-shadow: var(--glass-shadow),
-    inset 0 0 12px rgba(14, 58, 110, 0.12);
+  box-shadow: var(--glass-shadow);
   -webkit-backdrop-filter: blur(26px) saturate(190%);
   backdrop-filter: blur(26px) saturate(190%);
 }
@@ -221,7 +165,6 @@ select {
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
-  transform: scaleX(-1);
   background: linear-gradient(
     175deg,
     var(--wash-1) 0%,
@@ -244,8 +187,8 @@ select {
   height: 40%;
   background: radial-gradient(
     circle,
-    rgba(124, 222, 255, 0.95) 0%,
-    rgba(124, 222, 255, 0) 70%
+    rgba(var(--blob-a), var(--blob-strength)) 0%,
+    rgba(var(--blob-a), 0) 70%
   );
 }
 
@@ -256,8 +199,8 @@ select {
   height: 44%;
   background: radial-gradient(
     circle,
-    rgba(72, 168, 255, 0.92) 0%,
-    rgba(72, 168, 255, 0) 70%
+    rgba(var(--blob-b), var(--blob-strength)) 0%,
+    rgba(var(--blob-b), 0) 70%
   );
 }
 
@@ -273,7 +216,7 @@ select {
     90deg,
     rgba(255, 255, 255, 0) 0%,
     rgba(255, 255, 255, 0.92) 28%,
-    rgba(146, 231, 255, 0.9) 56%,
+    rgba(var(--blob-c), var(--blob-strength)) 56%,
     rgba(255, 255, 255, 0) 100%
   );
 }
@@ -286,8 +229,8 @@ select {
   filter: blur(52px);
   background: radial-gradient(
     circle,
-    rgba(0, 148, 255, 0.62) 0%,
-    rgba(0, 148, 255, 0) 70%
+    rgba(var(--blob-d), var(--blob-strength)) 0%,
+    rgba(var(--blob-d), 0) 70%
   );
 }
 
@@ -298,8 +241,8 @@ select {
   height: 40%;
   background: radial-gradient(
     circle,
-    rgba(158, 234, 255, 0.82) 0%,
-    rgba(158, 234, 255, 0) 70%
+    rgba(var(--blob-e), var(--blob-strength)) 0%,
+    rgba(var(--blob-e), 0) 70%
   );
 }
 
@@ -311,8 +254,8 @@ select {
   filter: blur(56px);
   background: radial-gradient(
     circle,
-    rgba(86, 186, 255, 0.55) 0%,
-    rgba(86, 186, 255, 0) 70%
+    rgba(var(--blob-f), var(--blob-strength)) 0%,
+    rgba(var(--blob-f), 0) 70%
   );
 }
 
@@ -352,7 +295,7 @@ select {
   z-index: 1;
   max-width: 520px;
   margin: 0 auto;
-  padding: 96px var(--pad) 132px;
+  padding: 0 var(--pad) 132px;
   min-height: 100svh;
 }
 
@@ -361,7 +304,7 @@ select {
    -------------------------------------------------------------------------- */
 
 .hero {
-  padding-top: 8px;
+  padding-top: 46px;
 }
 
 .hero__eyebrow {
@@ -757,99 +700,6 @@ select {
 }
 
 /* --------------------------------------------------------------------------
-   Top bar
-   Mirrors the bottom nav: the same floating chrome glass pill, fixed to the
-   top. Brand on one side, login / profile on the other.
-   -------------------------------------------------------------------------- */
-
-.header {
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 18px;
-  z-index: 40;
-  padding: 0 var(--pad);
-  display: flex;
-  justify-content: center;
-  pointer-events: none;
-}
-
-.header__inner {
-  pointer-events: auto;
-  width: 100%;
-  max-width: 476px;
-  height: 60px;
-  padding: 0 12px 0 18px;
-  border-radius: 999px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.header__brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--ink);
-  text-decoration: none;
-}
-
-.header__brand img {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  display: block;
-}
-
-.header__wordmark {
-  font-size: 16px;
-  font-weight: 800;
-}
-
-.header__login {
-  flex: 0 0 auto;
-  height: 40px;
-  padding: 0 20px;
-  border-radius: 999px;
-  border: 0;
-  font-family: inherit;
-  font-size: 13.5px;
-  font-weight: 700;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  color: #fff;
-}
-
-.header__profile {
-  flex: 0 0 auto;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  overflow: hidden;
-  display: grid;
-  place-items: center;
-  color: #fff;
-  text-decoration: none;
-  background: linear-gradient(150deg, var(--orb-top) 0%, var(--orb-mid) 100%);
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85),
-    0 3px 10px rgba(11, 138, 232, 0.32);
-}
-
-.header__profile img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.header__profile .avatar-initials {
-  border: 0;
-}
-
-/* --------------------------------------------------------------------------
    Bottom navigation
    -------------------------------------------------------------------------- */
 
@@ -912,6 +762,9 @@ select {
   display: grid;
   place-items: center;
   padding: 20px;
+  background: rgba(8, 42, 84, 0.3);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
   animation: modal-fade 0.18s ease-out;
 }
 
@@ -921,15 +774,20 @@ select {
   max-height: min(82svh, 640px);
   overflow-y: auto;
   padding: 22px;
-  border: var(--glass-border);
+  border: 1px solid rgba(255, 255, 255, 0.88);
   border-radius: 28px;
-  /* Same glass treatment as the header and bottom nav, so the chrome reads
-     as one consistent frosted layer. */
-  background: var(--glass-bg);
-  -webkit-backdrop-filter: blur(26px) saturate(190%);
-  backdrop-filter: blur(26px) saturate(190%);
-  box-shadow: var(--glass-shadow),
-    inset 0 0 12px rgba(14, 58, 110, 0.16);
+  /* Heavier than .glass on purpose: a dialog needs to sit clearly above the
+     page, and content has to stay readable over whatever is behind it. */
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.88) 0%,
+    rgba(255, 255, 255, 0.74) 100%
+  );
+  -webkit-backdrop-filter: blur(44px) saturate(200%);
+  backdrop-filter: blur(44px) saturate(200%);
+  box-shadow: 0 30px 70px rgba(6, 44, 96, 0.3),
+    0 6px 18px rgba(6, 44, 96, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
   animation: modal-pop 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.08);
 }
 
@@ -950,15 +808,6 @@ select {
   to {
     opacity: 1;
     transform: none;
-  }
-}
-
-/* Mobile: the filter dialog sits near the top of the screen, so when the
-   on-screen keyboard opens over the free-text or search fields it covers
-   empty space instead of the dialog. */
-@media (max-width: 640px) {
-  .modal-overlay--filter {
-    place-items: start center;
   }
 }
 
@@ -1262,33 +1111,16 @@ select {
 }
 
 /* --------------------------------------------------------------------------
-    Profile header
-
-    A panel like every other section: avatar beside the name and details on
-    one row (.profile-head__main), actions and hints below it. Pair it with
-    the .glass class in the markup for the frosted background.
-    -------------------------------------------------------------------------- */
+   Profile header
+   -------------------------------------------------------------------------- */
 
 .profile-head {
   margin-top: 20px;
   padding: 20px;
   border-radius: var(--radius-card);
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-
-.profile-head__main {
-  width: 100%;
-  display: flex;
   align-items: center;
   gap: 14px;
-}
-
-.profile-head__info {
-  flex: 1;
-  min-width: 0;
 }
 
 .profile-head__avatar {
@@ -1312,23 +1144,15 @@ select {
 
 .profile-head__name {
   margin: 0;
-  /* Flex, not plain inline: the verified badge is a block-level grid box, and
-     without this it wraps onto its own line under the name. */
-  display: flex;
-  align-items: center;
-  gap: 6px;
   font-size: 20px;
   font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .profile-head__meta {
-  margin: 6px 0 0;
+  margin: 4px 0 0;
   font-size: 13px;
   color: var(--ink-2);
-}
-
-.profile-head__meta--quiet {
-  color: var(--ink-3);
 }
 
 .profile-head__handle {
@@ -1404,8 +1228,7 @@ select {
 .btn--orb,
 .pill--active,
 .modal__btn--primary,
-.chip--active,
-.header__login {
+.chip--active {
   color: #fff;
   border: 0;
   background: radial-gradient(
@@ -1509,13 +1332,6 @@ select {
 
   .stats {
     gap: 8px;
-  }
-}
-
-/* Desktop: the quick-look person modal gets more room to breathe. */
-@media (min-width: 768px) {
-  .modal--person {
-    max-height: min(90svh, 800px);
   }
 }
 
@@ -1798,7 +1614,7 @@ select {
   z-index: 1;
   max-width: 520px;
   margin: 0 auto;
-  padding: 96px var(--pad) 60px;
+  padding: 0 var(--pad) 60px;
   min-height: 100svh;
   display: flex;
   flex-direction: column;
@@ -1924,43 +1740,6 @@ select {
   border: 2px solid rgba(255, 255, 255, 0.9);
 }
 
-/* No-picture fallback rendered by components/Avatar.tsx: nickname initials on
-   a mostly-black orb with a hint of blue — same inner/outer shadow recipe as
-   the raised nav sphere. Fills whatever avatar box contains it, so one rule
-   serves every size. */
-.avatar-initials {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid rgba(255, 255, 255, 0.9);
-  background: radial-gradient(
-      85% 85% at 32% 20%,
-      rgba(255, 255, 255, 0.35) 0%,
-      rgba(255, 255, 255, 0) 54%
-    ),
-    radial-gradient(
-      120% 120% at 50% 116%,
-      rgba(var(--orb-shade), 0.9) 0%,
-      rgba(var(--orb-shade), 0) 62%
-    ),
-    linear-gradient(
-      172deg,
-      #d6deea 0%,
-      #93a4c1 50%,
-      #697283 100%
-    );
-  box-shadow: inset 0 2px 2px rgba(255, 255, 255, 0.9),
-    inset 0 -9px 16px rgba(var(--orb-shade), 0.55),
-    0 6px 12px rgba(var(--orb-contact), 0.34),
-    0 16px 34px rgba(var(--orb-glow), 0.36);
-  color: var(--orb-text);
-  font-weight: 800;
-  user-select: none;
-}
-
 .person__name {
   margin: 0;
   display: flex;
@@ -2057,7 +1836,6 @@ select {
   align-items: center;
   gap: 7px;
   height: 38px;
-  max-width: 100%;
   padding: 0 14px;
   border-radius: 999px;
   border: 1px solid rgba(11, 138, 232, 0.3);
@@ -2066,21 +1844,6 @@ select {
   font-size: 13px;
   font-weight: 700;
   text-decoration: none;
-}
-
-/* Chips carry both the platform and the identifier, so the reader sees which
-   value belongs to which network without opening the link. */
-.social__handle {
-  font-weight: 500;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-/* Handles and URLs are Latin; the chip is always LTR even on the RTL page.
-   The Persian hints around it stay RTL. */
-.social[dir="ltr"] {
-  direction: ltr;
 }
 
 .social-editor__row {
@@ -2159,26 +1922,6 @@ select {
     0 16px 34px rgba(var(--orb-glow), 0.36);
 }
 
-/* The saved bookmark orb reads black instead of blue. Scoped to the card so
-   the login button and mark keep their blue orb. */
-.card .icon-btn--orb {
-  background: radial-gradient(
-      85% 85% at 32% 20%,
-      rgba(255, 255, 255, 0.22) 0%,
-      rgba(255, 255, 255, 0) 54%
-    ),
-    radial-gradient(
-      120% 120% at 50% 116%,
-      rgba(0, 0, 0, 0.7) 0%,
-      rgba(0, 0, 0, 0) 62%
-    ),
-    linear-gradient(172deg, #1f4a78 0%, #12315a 50%, #0a1e3d 100%);
-  box-shadow: inset 0 2px 2px rgba(255, 255, 255, 0.4),
-    inset 0 -9px 16px rgba(4, 22, 46, 0.6),
-    0 6px 12px rgba(8, 40, 90, 0.35),
-    0 16px 34px rgba(10, 60, 130, 0.35);
-}
-
 @media (prefers-reduced-motion: reduce) {
   .skeleton::after,
   .route-progress__bar,
@@ -2188,18 +1931,113 @@ select {
 }
 
 /* ==========================================================================
-   Sparks
-   A handful of small white glints, matching the earlier art direction.
-   Static - they never animate, so they cost nothing.
+   Glitter
+   Sparse, soft glints rather than hard dots. Small radial gradients with a
+   slow opacity breathe. Only opacity animates and the layer is not blurred,
+   so this stays cheap.
    ========================================================================== */
 
-.aurora__spark {
+.aurora__glitter {
   position: absolute;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.95);
+  inset: 0;
+  background-image: radial-gradient(
+      1.5px 1.5px at 12% 18%,
+      rgba(var(--glitter), var(--glitter-alpha)) 0%,
+      rgba(var(--glitter), 0) 100%
+    ),
+    radial-gradient(
+      2px 2px at 78% 12%,
+      rgba(var(--glitter), var(--glitter-alpha)) 0%,
+      rgba(var(--glitter), 0) 100%
+    ),
+    radial-gradient(
+      1.5px 1.5px at 32% 42%,
+      rgba(var(--glitter), var(--glitter-alpha)) 0%,
+      rgba(var(--glitter), 0) 100%
+    ),
+    radial-gradient(
+      2.5px 2.5px at 62% 34%,
+      rgba(var(--glitter), var(--glitter-alpha)) 0%,
+      rgba(var(--glitter), 0) 100%
+    ),
+    radial-gradient(
+      1.5px 1.5px at 88% 52%,
+      rgba(var(--glitter), var(--glitter-alpha)) 0%,
+      rgba(var(--glitter), 0) 100%
+    ),
+    radial-gradient(
+      2px 2px at 18% 66%,
+      rgba(var(--glitter), var(--glitter-alpha)) 0%,
+      rgba(var(--glitter), 0) 100%
+    ),
+    radial-gradient(
+      1.5px 1.5px at 48% 78%,
+      rgba(var(--glitter), var(--glitter-alpha)) 0%,
+      rgba(var(--glitter), 0) 100%
+    ),
+    radial-gradient(
+      2px 2px at 72% 88%,
+      rgba(var(--glitter), var(--glitter-alpha)) 0%,
+      rgba(var(--glitter), 0) 100%
+    );
+  background-repeat: no-repeat;
+  animation: glitter 7s ease-in-out infinite;
+}
+
+.aurora__glitter--2 {
+  background-image: radial-gradient(
+      2px 2px at 26% 8%,
+      rgba(var(--glitter), var(--glitter-alpha)) 0%,
+      rgba(var(--glitter), 0) 100%
+    ),
+    radial-gradient(
+      1.5px 1.5px at 54% 22%,
+      rgba(var(--glitter), var(--glitter-alpha)) 0%,
+      rgba(var(--glitter), 0) 100%
+    ),
+    radial-gradient(
+      2px 2px at 8% 38%,
+      rgba(var(--glitter), var(--glitter-alpha)) 0%,
+      rgba(var(--glitter), 0) 100%
+    ),
+    radial-gradient(
+      1.5px 1.5px at 92% 30%,
+      rgba(var(--glitter), var(--glitter-alpha)) 0%,
+      rgba(var(--glitter), 0) 100%
+    ),
+    radial-gradient(
+      2px 2px at 38% 58%,
+      rgba(var(--glitter), var(--glitter-alpha)) 0%,
+      rgba(var(--glitter), 0) 100%
+    ),
+    radial-gradient(
+      1.5px 1.5px at 66% 70%,
+      rgba(var(--glitter), var(--glitter-alpha)) 0%,
+      rgba(var(--glitter), 0) 100%
+    ),
+    radial-gradient(
+      2px 2px at 14% 86%,
+      rgba(var(--glitter), var(--glitter-alpha)) 0%,
+      rgba(var(--glitter), 0) 100%
+    ),
+    radial-gradient(
+      1.5px 1.5px at 84% 74%,
+      rgba(var(--glitter), var(--glitter-alpha)) 0%,
+      rgba(var(--glitter), 0) 100%
+    );
+  /* Offset phase so the two layers never pulse together. */
+  animation-duration: 9s;
+  animation-delay: -3s;
+}
+
+@keyframes glitter {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.95;
+  }
 }
 
 /* ==========================================================================
@@ -2292,6 +2130,17 @@ a.btn-add {
 }
 
 .social {
+  justify-content: center;
+}
+
+.profile-head {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+}
+
+.profile-head__name {
   justify-content: center;
 }
 
@@ -2412,6 +2261,13 @@ a.btn-add {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora__glitter {
+    animation: none;
+    opacity: 0.6;
+  }
 }
 
 /* ==========================================================================
@@ -2570,12 +2426,23 @@ body {
   }
 }
 
-/* The full-detail page reuses the .person__* pieces inside the header row;
-   only the avatar box needs sizing, the text follows the info column. */
+/* The public profile page composes the centered header out of the .person__*
+   pieces (they are the ones the modal uses too), so those children need the
+   same treatment .profile-head__* already gets. Without this the avatar keeps
+   its 84px modal size and the name row stays start-aligned. */
 .profile-head .person__avatar {
-  width: 76px;
-  height: 76px;
-  flex: 0 0 auto;
+  width: 96px;
+  height: 96px;
+}
+
+.profile-head .person__name {
+  justify-content: center;
+}
+
+/* Two stacked role lines: spacing comes from the container's gap, so their own
+   margins would double it. */
+.profile-head .person__role {
+  margin: 0;
 }
 
 /* ==========================================================================

@@ -8,7 +8,7 @@ import {
   updateProfile,
   uploadAvatar,
 } from "@/lib/api/account"
-import { ApiError, type PrivacyPatch, type ProfilePatch } from "@/lib/api/types"
+import { ApiError, type PrivacyPatch, type ProfilePatch, type SocialLink } from "@/lib/api/types"
 import { toApiLink } from "@/lib/social"
 import { clearSession, getSessionToken } from "@/lib/session"
 
@@ -81,6 +81,7 @@ function orNull(value: string | undefined): string | null {
 }
 
 export async function saveProfile(input: {
+  nickname?: string
   first_name?: string
   last_name?: string
   bio?: string
@@ -88,16 +89,17 @@ export async function saveProfile(input: {
   country?: string
   whatsapp_number?: string
 }): Promise<SaveResult> {
-  /* Only the six fields PATCH /account/profile accepts. Anything else is a
+  /* Only fields PATCH /account/profile accepts. Anything else is a
      400, so the payload is built explicitly rather than spread. username is
      absent on purpose: it comes from Telegram and cannot be changed. */
-  const patch: ProfilePatch = {
-    first_name: orNull(input.first_name),
-    last_name: orNull(input.last_name),
-    bio: orNull(input.bio),
-    occupation: orNull(input.occupation),
-    country: orNull(input.country),
-    whatsapp_number: orNull(input.whatsapp_number),
+  const patch: ProfilePatch = {}
+  if (Object.prototype.hasOwnProperty.call(input, "nickname")) {
+    const name = input.nickname?.trim() ?? ""
+    if (!name || name.length > 200) return { ok: false, reason: "invalid", message: "نام شما باید بین ۱ تا ۲۰۰ نویسه باشد." }
+    patch.nickname = name
+  }
+  for (const key of ["first_name", "last_name", "bio", "occupation", "country", "whatsapp_number"] as const) {
+    if (Object.prototype.hasOwnProperty.call(input, key)) patch[key] = orNull(input[key])
   }
 
   return withToken((token) => updateProfile(token, patch))
@@ -119,6 +121,11 @@ export async function saveSocialLinks(
     .filter((row) => row.platform && row.handle.trim())
     .map((row) => toApiLink(row))
 
+  return withToken((token) => replaceSocialLinks(token, links))
+}
+
+/** Preserve existing links outside the guided contact templates verbatim. */
+export async function saveContactLinks(links: SocialLink[]): Promise<SaveResult> {
   return withToken((token) => replaceSocialLinks(token, links))
 }
 

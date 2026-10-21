@@ -19,7 +19,7 @@
  * straight into an httpOnly cookie and never passes through this component.
  */
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Suspense } from "react"
@@ -39,11 +39,23 @@ function LoginForm() {
   const [code, setCode] = useState("")
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [devEnabled, setDevEnabled] = useState(false)
+  const [devUserId, setDevUserId] = useState("")
+
+  useEffect(() => {
+    let active = true
+    fetch("/api/session/dev", { cache: "no-store" })
+      .then((response) => response.json())
+      .then((body) => { if (active) setDevEnabled(body.enabled === true) })
+      .catch(() => {})
+    return () => { active = false }
+  }, [])
 
   /* Where to land afterwards. Bookmarking while signed out sends people here
      with the profile they were looking at, so they are returned to it rather
      than dumped on their own profile page. */
-  const next = params.get("next") ?? "/profile"
+  const destination = params.get("next") ?? "/profile"
+  const next = destination.startsWith("/") && !destination.startsWith("//") && !destination.includes("\\") ? destination : "/profile"
 
   /* Set when the app discovered a dead session and signed the user out. They
      did not choose to come here, so the screen says why rather than looking
@@ -53,6 +65,29 @@ function LoginForm() {
   const trimmed = code.trim()
   const valid = CODE_PATTERN.test(trimmed)
   const remaining = CODE_LENGTH - trimmed.length
+
+  async function devLogin() {
+    if (pending) return
+    if (devUserId.trim() && !/^-?[0-9]{1,19}$/.test(devUserId.trim())) { setError("شناسهٔ کاربر باید عدد صحیح باشد."); return }
+    setPending(true)
+    setError(null)
+    try {
+      const response = await fetch("/api/session/dev", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ user_id: devUserId.trim() || undefined }) })
+      const body = await response.json()
+      if (!response.ok || !body.ok) {
+        setError(body.message ?? "ورود توسعه انجام نشد.")
+        setPending(false)
+        return
+      }
+      markSignedIn()
+      // Recreate all private client providers when switching identities, so
+      // bookmarks/account drafts from the previous user cannot linger.
+      window.location.replace(next)
+    } catch {
+      setError("ارتباط با API برقرار نشد.")
+      setPending(false)
+    }
+  }
 
   async function submit(event: React.FormEvent) {
     event.preventDefault()
@@ -104,15 +139,24 @@ function LoginForm() {
         </div>
 
         <h1 className="login__title">ورود به هویت</h1>
+        {devEnabled && <section className="business-notice" aria-label="حالت توسعه">
+          <p>ورود توسعه بدون کد تلگرام؛ شناسهٔ یک کاربر موجود در پایگاه دادهٔ محلی را وارد کنید.</p>
+          <form onSubmit={(event) => { event.preventDefault(); devLogin() }}>
+            <label htmlFor="dev-user-id">شناسهٔ کاربر</label>
+            <input id="dev-user-id" className="login__code" type="text" inputMode="numeric" dir="ltr" value={devUserId} onChange={(event) => setDevUserId(event.target.value)} maxLength={20} placeholder="مثلاً 123456789" disabled={pending} aria-describedby="dev-user-id-help" />
+            <p id="dev-user-id-help" className="login__help">خالی بگذارید تا وارد حساب آزمایشی پیش‌فرض شوید.</p>
+            <button type="submit" className="login__submit" disabled={pending}>{pending ? "در حال ورود…" : "ورود توسعه بدون کد"}</button>
+          </form>
+        </section>}
         <p className="login__sub">
-          برای ورود به حساب کاربری، از طریق تلگرام یک کد یک‌بارمصرف دریافت کنید و
-          آن را در اینجا وارد کنید.
+          ورود معمول با کد تلگرام انجام می‌شود. ربات یک کد یک‌بارمصرف به شما می‌دهد و
+          شما همان کد را اینجا وارد می‌کنید.
         </p>
 
         <ol className="login__steps">
           <li>ربات هویت را در تلگرام باز کنید.</li>
-          <li>کد یک‌بارمصرفی را که ربات برای شما ارسال می‌کند، کپی کنید.</li>
-          <li>کد را در کادر زیر وارد کنید.</li>
+          <li>کدی که ربات می‌دهد کپی کنید.</li>
+          <li>کد را در کادر زیر بچسبانید.</li>
         </ol>
 
         <a

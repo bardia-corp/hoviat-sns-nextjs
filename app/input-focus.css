@@ -1,0 +1,4 @@
+/* Text entry uses a soft glow; links/buttons keep their keyboard focus marker. */
+body :is(input:not([type=checkbox]):not([type=radio]),textarea,select):is(:focus,:focus-visible){outline:none!important;box-shadow:0 4px 20px rgba(35,130,198,.2)!important;border-color:rgba(87,163,213,.5)}
+body :is(.contact-field__input,.search-dialog-search,.prefixed):focus-within{outline:none!important;box-shadow:0 4px 20px rgba(35,130,198,.2)!important}
+body :is(.contact-field__input,.search-dialog-search,.prefixed) input:is(:focus,:focus-visible){box-shadow:none!important}

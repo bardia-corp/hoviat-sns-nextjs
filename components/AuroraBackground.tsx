@@ -1,11 +1,12 @@
 /**
  * Static aurora background.
  *
- * Six blurred colour fields, a masked grid and a few white sparks.
+ * Six blurred colour fields, a masked grid and two glitter layers.
  *
  * None of the blurred layers animate: a blurred layer that moves forces the
  * compositor to re-rasterise every frame, which is the single most expensive
- * thing you can do on a mid-range phone. The sparks are static.
+ * thing you can do on a mid-range phone. The glitter layers are not blurred
+ * and only animate opacity, which the compositor handles on its own.
  */
 export default function AuroraBackground() {
   return (
@@ -17,11 +18,8 @@ export default function AuroraBackground() {
       <span className="aurora__blob aurora__blob--e" />
       <span className="aurora__blob aurora__blob--f" />
       <span className="aurora__grid" />
-      <span className="aurora__spark" style={{ top: "18%", left: "78%" }} />
-      <span className="aurora__spark" style={{ top: "31%", left: "12%" }} />
-      <span className="aurora__spark" style={{ top: "44%", left: "88%" }} />
-      <span className="aurora__spark" style={{ top: "52%", left: "32%" }} />
-      <span className="aurora__spark" style={{ top: "63%", left: "70%" }} />
+      <span className="aurora__glitter" />
+      <span className="aurora__glitter aurora__glitter--2" />
     </div>
   )
 }

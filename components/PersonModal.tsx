@@ -16,13 +16,12 @@
 import { useEffect } from "react"
 import Link from "next/link"
 import {
+  avatarFor,
   displayName,
   joinedLabel,
-  socialHandle,
   socialLabel,
   socialUrl,
 } from "@/lib/people"
-import Avatar from "./Avatar"
 import { usePersonModal } from "./PersonModalProvider"
 import { useBookmarks } from "./BookmarksProvider"
 import { useAuth } from "./AuthProvider"
@@ -82,7 +81,7 @@ export default function PersonModal() {
       }}
     >
       <div
-        className="modal modal--person"
+        className="modal"
         role="dialog"
         aria-modal="true"
         aria-label={name}
@@ -103,7 +102,7 @@ export default function PersonModal() {
         <div className="person__head">
           <div className="person__avatar">
             {/* 96 to match the CSS box, so the browser does not scale it. */}
-            <Avatar person={person} size={96} />
+            <img src={avatarFor(person)} alt="" width={96} height={96} />
           </div>
           <div style={{ minWidth: 0 }}>
             <h3 className="person__name">
@@ -126,9 +125,7 @@ export default function PersonModal() {
         </p>
 
         {person.social_links && person.social_links.length > 0 ? (
-          /* dir="ltr": platform names and handles are Latin; the Persian
-             text around the list stays RTL. */
-          <ul className="social" dir="ltr">
+          <ul className="social">
             {person.social_links.map((link) => (
               <li key={link.id ?? link.platform + link.url}>
                 <a
@@ -137,8 +134,7 @@ export default function PersonModal() {
                   target="_blank"
                   rel="noopener noreferrer nofollow"
                 >
-                  <span>{socialLabel(link)}</span>
-                  <span className="social__handle">{socialHandle(link)}</span>
+                  {socialLabel(link)}
                   <ExternalIcon />
                 </a>
               </li>

@@ -1,5 +1,5 @@
 import "server-only"
-import { apiRequest, SEARCH_REVALIDATE, USE_MOCK } from "./http"
+import { apiRequest, USE_MOCK } from "./http"
 import { ApiError, type Meta, type Profile, type SearchResult } from "./types"
 import { mockProfile, mockSearch } from "../mock"
 import type { SearchQuery } from "../search"
@@ -7,16 +7,12 @@ import type { SearchQuery } from "../search"
 /**
  * The two public endpoints: search, and one profile.
  *
- * Both are cached. Search is cached because of the shared-IP rate limit - with
- * server rendering every visitor reaches the API from one address, so without
- * caching a handful of people scrolling would exhaust the minute budget for
- * everybody. A profile is cached for longer since it changes rarely.
+ * Public fields and discoverability can be withdrawn at any time. These reads
+ * use no-store so another visitor does not receive a cached private field.
  *
  * Both fall back to the mock dataset when SNS_USE_MOCK=1, so the design stays
  * workable while staging is down or throttled.
  */
-
-const PROFILE_REVALIDATE = 300
 
 function normaliseMeta(
   raw: Record<string, unknown>,
@@ -64,8 +60,6 @@ export async function searchProfiles(
       page: query.page && query.page > 1 ? query.page : undefined,
       size: query.size,
     },
-    revalidate: SEARCH_REVALIDATE,
-    tags: ["search"],
   })
 
   const rows = Array.isArray(data) ? data : []
@@ -87,10 +81,7 @@ export async function getProfile(userId: number): Promise<Profile | null> {
   if (USE_MOCK) return mockProfile(userId)
 
   try {
-    const { data } = await apiRequest<Profile>("/profiles/" + userId, {
-      revalidate: PROFILE_REVALIDATE,
-      tags: ["profile-" + userId],
-    })
+    const { data } = await apiRequest<Profile>("/profiles/" + userId)
     return data ?? null
   } catch (error) {
     if (error instanceof ApiError && error.isNotFound) return null

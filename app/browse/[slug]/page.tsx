@@ -3,7 +3,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { buildSearchHref } from "@/lib/search"
 import { searchProfiles } from "@/lib/api/profiles"
-import { CURATED_SEARCHES, SITE_NAME, findCurated } from "@/lib/seo"
+import { SITE_NAME, findCurated } from "@/lib/seo"
 import { faDigits } from "@/lib/date"
 import ResultsList from "@/components/ResultsList"
 import Pagination from "@/components/Pagination"
@@ -14,9 +14,9 @@ import Pagination from "@/components/Pagination"
  * These exist because occupation and country are free-text columns in the
  * backend with no controlled vocabulary, so there is no safe way for the
  * frontend to mint a clean slug for an arbitrary user-entered value. Curating
- * the searches we actually want to rank for avoids inventing that vocabulary,
- * and each page is statically generated at build time: fast, cacheable, and
- * trivially crawlable.
+ * the searches we actually want to rank for avoids inventing that vocabulary.
+ * Results render on request so withdrawn personal fields are not kept in a
+ * static page. The initial HTML remains crawlable.
  *
  * The slugs stay Latin while the content is Persian. A Persian slug is legal
  * but has to be percent-encoded, which turns a shareable link into hex.
@@ -29,9 +29,8 @@ type PageProps = {
   searchParams: Promise<{ page?: string }>
 }
 
-export function generateStaticParams() {
-  return CURATED_SEARCHES.map((item) => ({ slug: item.slug }))
-}
+// These results contain personal fields whose visibility can be withdrawn.
+export const dynamic = "force-dynamic"
 
 export async function generateMetadata({
   params,
@@ -66,6 +65,7 @@ export default async function BrowsePage({ params, searchParams }: PageProps) {
   return (
     <main className="screen">
       <header className="hero">
+        <p className="hero__eyebrow">{SITE_NAME}</p>
         <h1 className="hero__title hero__title--sm">{curated.heading}</h1>
         <p className="hero__sub">{curated.description}</p>
       </header>

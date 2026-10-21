@@ -18,14 +18,19 @@ import { clearSession, getSessionToken } from "@/lib/session"
  *   A cookie the API refuses - the session is over. Answered 401, and the
  *   cookie is destroyed on this very response, so the browser cannot keep
  *   presenting a credential that has already been rejected.
+ *
+ * ?ids=1 trims the response to identifiers. The upstream endpoint always sends
+ * whole profiles, so this saves the wire, not the API call.
  */
 export async function GET(request: Request) {
   const token = await getSessionToken()
+  const idsOnly = new URL(request.url).searchParams.get("ids") === "1"
 
   if (!token) {
     return NextResponse.json({
       ok: true,
       signedIn: false,
+      ids: [],
       data: [],
       total: 0,
     })
@@ -33,6 +38,15 @@ export async function GET(request: Request) {
 
   try {
     const { data, total } = await listBookmarks(token)
+
+    if (idsOnly) {
+      return NextResponse.json({
+        ok: true,
+        signedIn: true,
+        ids: data.map((person) => person.user_id),
+        total,
+      })
+    }
 
     return NextResponse.json({ ok: true, signedIn: true, data, total })
   } catch (error) {
@@ -47,6 +61,7 @@ export async function GET(request: Request) {
         {
           ok: false,
           signedIn: false,
+          ids: [],
           data: [],
           message: "\u0646\u0634\u0633\u062a \u0634\u0645\u0627 \u062a\u0645\u0627\u0645 \u0634\u062f\u0647 \u0627\u0633\u062a. \u062f\u0648\u0628\u0627\u0631\u0647 \u0648\u0627\u0631\u062f \u0634\u0648\u06cc\u062f.",
         },
@@ -60,6 +75,7 @@ export async function GET(request: Request) {
         /* Still signed in: this failed for some other reason, and treating it
            as a sign-out would throw the user out over a timeout. */
         signedIn: true,
+        ids: [],
         data: [],
         message: api?.userMessage ?? "\u0641\u0647\u0631\u0633\u062a \u0630\u062e\u06cc\u0631\u0647\u200c\u0647\u0627 \u062e\u0648\u0627\u0646\u062f\u0647 \u0646\u0634\u062f.",
       },

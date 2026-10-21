@@ -1,14 +1,16 @@
 import type { Metadata, Viewport } from "next"
 import { Suspense } from "react"
 import "./globals.css"
+import "./business.css"
+import "./input-focus.css"
 import AuroraBackground from "@/components/AuroraBackground"
 import BottomNav from "@/components/BottomNav"
-import Header from "@/components/Header"
 import { AuthProvider } from "@/components/AuthProvider"
 import { BookmarksProvider } from "@/components/BookmarksProvider"
 import { PersonModalProvider } from "@/components/PersonModalProvider"
 import { NavProgressProvider } from "@/components/NavProgress"
 import PersonModal from "@/components/PersonModal"
+import { BusinessBookmarksProvider } from "@/components/BusinessBookmarksProvider"
 
 /**
  * Root layout.
@@ -23,9 +25,9 @@ import PersonModal from "@/components/PersonModal"
  */
 
 export const metadata: Metadata = {
-  title: "هویت | جستجو بر اساس کشور و شغل",
+  title: "هویت | کشف کسب‌وکارها و خدمات",
   description:
-    "هویت یک فهرست افراد است. جستجو بر اساس نام و فیلتر بر اساس کشور، شغل و وضعیت ثبت‌نام.",
+    "کسب‌وکارها و خدمات مرتبط با جامعهٔ فارسی‌زبان را در آلمان پیدا کنید، ذخیره کنید و اطلاعات کسب‌وکار خود را مدیریت کنید.",
   applicationName: "هویت",
 }
 
@@ -63,21 +65,21 @@ export default function RootLayout({
       <body>
         <AuthProvider>
           <BookmarksProvider>
+            <BusinessBookmarksProvider>
             <PersonModalProvider>
               <AuroraBackground />
-              <Header />
               {/* NavProgressProvider reads the query string to know when a
                   navigation finished, and useSearchParams has to sit inside a
                   Suspense boundary or it opts every page out of static
                   rendering. */}
               <Suspense fallback={null}>
-                <NavProgressProvider>{children}</NavProgressProvider>
+                <NavProgressProvider navigation={<BottomNav />}>{children}</NavProgressProvider>
               </Suspense>
-              <BottomNav />
               {/* One dialog instance for the whole app: any card on any route
                   opens it through the provider. */}
               <PersonModal />
             </PersonModalProvider>
+            </BusinessBookmarksProvider>
           </BookmarksProvider>
         </AuthProvider>
       </body>

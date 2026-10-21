@@ -20,3 +20,8 @@ next-env.d.ts
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# Ignore every real environment variant; retain sanitized templates.
+.env*
+!.env.example
+!.env.sample

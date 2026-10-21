@@ -19,18 +19,27 @@ export type { Account, Privacy, Visibility }
 export type PrivacyField = {
   key: keyof Omit<Privacy, "is_profile_discoverable">
   label: string
-  /** Optional. Only present when the label alone is not self-explanatory. */
-  hint?: string
+  hint: string
 }
 
 /* All eleven field-level toggles the API documents. profile_picture and
-   social_links were missing before and are the two people ask about most.
-   Most labels are self-explanatory, so hints only explain the ones that are
-   genuinely ambiguous. */
+   social_links were missing before and are the two people ask about most. */
 export const PRIVACY_FIELDS: PrivacyField[] = [
-  { key: "profile_picture_visibility", label: "عکس پروفایل" },
-  { key: "first_name_visibility", label: "نام" },
-  { key: "last_name_visibility", label: "نام خانوادگی" },
+  {
+    key: "profile_picture_visibility",
+    label: "عکس پروفایل",
+    hint: "در حالت خصوصی، دیگران عکس پیش‌فرض را می‌بینند.",
+  },
+  {
+    key: "first_name_visibility",
+    label: "نام",
+    hint: "نام در جستجوی متنی جستجو می‌شود؛ خصوصی کردن آن شما را از این جستجو حذف می‌کند.",
+  },
+  {
+    key: "last_name_visibility",
+    label: "نام خانوادگی",
+    hint: "مانند نام؛ اگر خصوصی باشد در جستجو با آن پیدا نمی‌شوید.",
+  },
   {
     key: "nickname_visibility",
     label: "نام نمایشی",
@@ -39,25 +48,37 @@ export const PRIVACY_FIELDS: PrivacyField[] = [
   {
     key: "username_visibility",
     label: "نام کاربری تلگرام",
-    hint: "از تلگرام می‌آید و قابل تغییر نیست.",
+    hint: "نام کاربری از تلگرام می‌آید و قابل تغییر نیست؛ فقط می‌توانید آن را پنهان کنید.",
   },
-  { key: "occupation_visibility", label: "شغل" },
-  { key: "country_visibility", label: "کشور" },
+  {
+    key: "occupation_visibility",
+    label: "شغل",
+    hint: "مهم‌ترین فیلتر جستجوست. خصوصی کردن آن شما را از تمام جستجوهای شغلی حذف می‌کند.",
+  },
+  {
+    key: "country_visibility",
+    label: "کشور",
+    hint: "کشور هم فیلتر است و هم در جستجوی متنی می‌آید؛ با خصوصی کردن آن از هر دو حذف می‌شوید.",
+  },
   {
     key: "bio_visibility",
     label: "معرفی",
-    hint: "متنی که درباره خودتان می‌نویسید.",
+    hint: "متن معرفی در جستجوی سراسری جستجو می‌شود.",
   },
-  { key: "social_links_visibility", label: "شبکه‌های اجتماعی" },
+  {
+    key: "social_links_visibility",
+    label: "شبکه‌های اجتماعی",
+    hint: "راه‌های ارتباطی که دیگران در پروفایل شما می‌بینند.",
+  },
   {
     key: "phone_number_visibility",
     label: "شماره تلفن",
-    hint: "توصیه می‌شود خصوصی بماند.",
+    hint: "توصیه می‌شود خصوصی بماند؛ جستجو هم روی شماره تلفن انجام نمی‌شود.",
   },
   {
     key: "whatsapp_number_visibility",
     label: "شماره واتس‌اپ",
-    hint: "اگر عمومی باشد، دیگران می‌توانند به شما پیام بدهند.",
+    hint: "اگر عمومی باشد، دیگران می‌توانند مستقیم پیام بدهند.",
   },
 ]
 

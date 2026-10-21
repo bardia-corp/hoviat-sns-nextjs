@@ -205,9 +205,9 @@ export function getPerson(userId: number): Profile | undefined {
    exactly what a privacy-restricted profile looks like. */
 
 export function displayName(person: Profile): string {
-  const full = [person.first_name, person.last_name].filter(Boolean).join(" ")
+  if (person.nickname?.trim()) return person.nickname.trim()
+  const full = [person.first_name?.trim(), person.last_name?.trim()].filter(Boolean).join(" ")
   if (full) return full
-  if (person.nickname) return person.nickname
   if (person.username) return "@" + person.username
   return "\u06a9\u0627\u0631\u0628\u0631 " + faDigits(person.user_id)
 }
@@ -229,4 +229,14 @@ export function joinedLabel(person: Profile): string {
   if (!person.join_date) return "\u0646\u0627\u0645\u0634\u062e\u0635"
   /* join_date is unix seconds. */
   return jalaliMonthYear(person.join_date)
+}
+
+/**
+ * profile_url is null for anyone without a picture or with the picture set to
+ * private, and once the API is live it is an absolute URL on the backend host
+ * rather than a local path. Both cases go through here.
+ */
+export function avatarFor(person: Profile): string {
+  if (person.profile_url) return person.profile_url
+  return AVATARS[Math.abs(person.user_id) % AVATARS.length]
 }

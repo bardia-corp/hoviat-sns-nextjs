@@ -46,9 +46,11 @@ type Envelope<T> = {
 }
 
 export type RequestOptions = {
+  /** Separate public directory API, with the same response envelope. */
+  baseUrl?: string
   method?: "GET" | "POST" | "PATCH" | "PUT" | "DELETE"
   /** Query parameters. Undefined and empty values are dropped. */
-  query?: Record<string, string | number | boolean | undefined>
+  query?: Record<string, string | number | boolean | number[] | undefined>
   /** JSON body. Explicit nulls are preserved: the API uses null to clear. */
   body?: unknown
   /** Multipart body, for the avatar upload. Content-Type is left to fetch. */
@@ -64,14 +66,18 @@ export type RequestOptions = {
   timeoutMs?: number
 }
 
-function buildUrl(path: string, query?: RequestOptions["query"]): string {
+function buildUrl(path: string, query?: RequestOptions["query"], baseUrl = API_BASE): string {
   const url = new URL(
-    API_BASE + (path.startsWith("/") ? path : "/" + path),
+    baseUrl.replace(/\/+$/, "") + (path.startsWith("/") ? path : "/" + path),
   )
 
   if (query) {
     for (const [key, value] of Object.entries(query)) {
       if (value === undefined || value === "") continue
+      if (Array.isArray(value)) {
+        value.forEach((entry) => url.searchParams.append(key, String(entry)))
+        continue
+      }
       url.searchParams.set(key, String(value))
     }
   }
@@ -128,7 +134,7 @@ export async function apiRequest<T>(
 
   let response: Response
   try {
-    response = await fetch(buildUrl(path, query), init)
+    response = await fetch(buildUrl(path, query, options.baseUrl), init)
   } catch (cause) {
     /* DNS failure, refused connection, a rejected TLS certificate, or the
        timeout above. All of them look the same to a user. */

@@ -74,6 +74,7 @@ export default function BookmarksPage() {
   return (
     <main className="screen">
       <header className="hero">
+        <p className="hero__eyebrow">ذخیره شده</p>
         <h1 className="hero__title hero__title--sm">ذخیره‌های من</h1>
         <p className="hero__sub">
           {loading
@@ -101,7 +102,7 @@ export default function BookmarksPage() {
           <Link href="/discover" style={{ fontWeight: 700 }}>
             جستجو
           </Link>{" "}
-          روی علامت به‌علاوه‌ی هر شخصی بزنید تا اینجا ذخیره شود.
+          روی علامت به‌علاوه‌ی هر کس بزنید تا اینجا ذخیره شود.
         </div>
       ) : (
         <ResultsList people={people ?? []} />

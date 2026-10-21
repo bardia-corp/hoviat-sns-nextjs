@@ -1,4 +1,5 @@
 import "server-only"
+import { Buffer } from "node:buffer"
 import { cookies } from "next/headers"
 
 /**
@@ -19,13 +20,11 @@ import { cookies } from "next/headers"
  * by some browsers, which would make login appear to succeed and then do
  * nothing in development.
  *
- * Seven days matches the token's own lifetime. There is no refresh endpoint, so
- * when it expires the only path is logging in again; the cookie dying at the
- * same moment keeps the UI honest about that.
+ * Cookie expiry follows the issued token, including older short-lived tokens.
+ * There is no refresh endpoint; an expired token requires another login.
  */
 
 export const SESSION_COOKIE = "hoviat_token"
-export const SESSION_MAX_AGE = 60 * 60 * 24 * 7
 
 /**
  * The old readable flag. Kept only so that clearSession can delete it: a
@@ -43,15 +42,36 @@ function cookieOptions() {
   }
 }
 
-export function sessionCookieOptions() {
-  return { ...cookieOptions(), maxAge: SESSION_MAX_AGE }
+/** Expiry is read only to limit local session/cookie lifetime, never to grant
+ * authorization. The API still verifies the JWT signature and claims. */
+function tokenExpiry(token: string): Date | null {
+  try {
+    const parts = token.split(".")
+    if (parts.length !== 3 || parts.some((part) => !/^[A-Za-z0-9_-]+$/.test(part))) return null
+    const payload: unknown = JSON.parse(Buffer.from(parts[1], "base64url").toString("utf8"))
+    if (!payload || typeof payload !== "object" || !("exp" in payload)) return null
+    const exp = payload.exp
+    if (typeof exp !== "number" || !Number.isFinite(exp)) return null
+    const expires = new Date(exp * 1000)
+    return Number.isFinite(expires.getTime()) ? expires : null
+  } catch { return null }
+}
+
+export function sessionCookieOptions(token: string) {
+  const expires = tokenExpiry(token)
+  const maxAge = expires ? Math.floor((expires.getTime() - Date.now()) / 1000) : 0
+  if (maxAge <= 0 || !expires) throw new Error("EXPIRED_OR_INVALID_SESSION")
+  return { ...cookieOptions(), maxAge, expires }
 }
 
 export async function getSessionToken(): Promise<string | null> {
   const store = await cookies()
   const value = store.get(SESSION_COOKIE)?.value
-  /* An empty string is not a token. A cleared cookie can arrive as one. */
-  return value ? value : null
+  /* Older cookies may outlive their JWT. Ignore them even in a server render,
+     where cookie mutation is unavailable; signed API requests remain guarded. */
+  if (!value) return null
+  const expires = tokenExpiry(value)
+  return expires && expires.getTime() > Date.now() ? value : null
 }
 
 export async function isSignedIn(): Promise<boolean> {
@@ -66,8 +86,11 @@ export async function requireSessionToken(): Promise<string> {
 }
 
 export async function setSessionToken(token: string): Promise<void> {
+  let options: ReturnType<typeof sessionCookieOptions>
+  try { options = sessionCookieOptions(token) }
+  catch (error) { await clearSession(); throw error }
   const store = await cookies()
-  store.set(SESSION_COOKIE, token, sessionCookieOptions())
+  store.set(SESSION_COOKIE, token, options)
   /* Anyone arriving from an older build sheds the stale flag on login. */
   store.delete(LEGACY_FLAG_COOKIE)
 }

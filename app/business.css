@@ -1,0 +1,50 @@
+.business-screen { max-width: 1040px; padding-bottom: 140px; }
+.business-hero { padding-block: 24px 32px; }
+.business-hero .hero__title { max-width: 820px; margin-inline: auto; font-size: clamp(2rem, 6vw, 3.4rem); line-height: 1.65; }
+.business-hero .hero__sub { line-height: 2; max-width: 690px; margin-inline: auto; }
+.business-home-search { display: flex; align-items: center; gap: 10px; max-width: 620px; margin: 28px auto 0; padding: 8px; background: #fff; border-radius: 20px; border: 1px solid rgba(11,138,232,.2); box-shadow: 0 10px 32px rgba(10,84,182,.08); }
+.business-home-search input { min-width: 0; flex: 1; padding: 12px; border: 0; font: inherit; background: transparent; }
+.business-primary { background: var(--accent-deep); color: #fff; display: inline-flex; justify-content: center; padding: 12px 23px; border: 0; border-radius: 13px; min-height: 46px; font: inherit; font-weight: 600; text-decoration: none; cursor: pointer; }
+.business-shortcuts { display: flex; justify-content: center; flex-wrap: wrap; gap: 14px 24px; padding: 0 0 28px; }
+.business-shortcuts a, .business-text-link { color: var(--accent-deep); text-underline-offset: 5px; }
+.business-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
+.business-card { border-radius: 24px; padding: 26px; display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.business-card__link { display: flex; gap: 16px; align-items: center; color: var(--ink); text-decoration: none; }
+.business-card__initial { width: 54px; height: 54px; display: grid; place-items: center; flex-shrink: 0; background: rgba(11,138,232,.12); color: var(--accent-deep); border-radius: 18px; font-size: 1.6rem; font-weight: 700; }
+.business-card h2 { font-size: 1.12rem; margin: 0 0 7px; overflow-wrap: anywhere; }
+.business-location { font-size: .86rem; color: var(--ink-3); margin: 0; line-height: 1.9; }
+.business-card__description { line-height: 1.95; font-size: .94rem; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+.business-tags { display: flex; flex-wrap: wrap; gap: 7px; list-style: none; padding: 0; margin: 0; }
+.business-tags li { background: rgba(11,138,232,.07); border: 1px solid rgba(11,138,232,.13); border-radius: 9px; font-size: .74rem; padding: 5px 9px; line-height: 1.7; }
+.business-tags a { text-decoration: none; color: inherit; }
+.business-card__footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: auto; font-size: .82rem; }
+.business-save { display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 1px solid rgba(11,138,232,.25); border-radius: 11px; background: rgba(255,255,255,.6); padding: 10px; color: var(--accent-deep); font: inherit; font-size: .82rem; cursor: pointer; min-height: 44px; white-space: nowrap; }
+.business-save--active { color: #fff; background: var(--accent-deep); }
+.business-save:disabled { opacity: .55; cursor: wait; }
+.business-filters { border-radius: 24px; padding: 24px; margin-bottom: 30px; }
+.business-filters label { display: flex; flex-direction: column; gap: 9px; font-size: .85rem; font-weight: 600; }
+.business-filters input:not([type=checkbox]), .business-filters select { width: 100%; min-height: 46px; background: rgba(255,255,255,.8); border: 1px solid rgba(40,100,145,.23); border-radius: 12px; padding: 10px 12px; color: var(--ink); font: inherit; font-weight: 400; box-sizing: border-box; }
+.business-filter-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 18px; margin-block: 20px; }
+.business-more-filters summary { cursor: pointer; padding: 10px 0; color: var(--accent-deep); font-size: .9rem; }
+.business-category-options { border: 1px solid rgba(11,138,232,.18); border-radius: 12px; padding: 16px; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; max-height: 250px; overflow: auto; margin: 15px 0; }
+.business-category-options legend { font-size: .9rem; padding-inline: 8px; }
+.business-category-options label { flex-direction: row; align-items: center; font-size: .82rem; }
+.business-category-options input { width: 19px; height: 19px; accent-color: var(--accent-deep); }
+.business-filter-actions { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; }
+.business-filter-actions label { min-width: 180px; margin-inline-end: auto; }
+.business-notice { border: 1px solid rgba(11,138,232,.22); background: #f4faff; padding: 20px 24px; border-radius: 18px; margin-block: 20px; line-height: 1.9; }
+.business-notice h2 { margin-top: 0; font-size: 1.1rem; }
+.business-text-button { color: var(--accent-deep); border: 0; background: none; text-decoration: underline; text-underline-offset: 4px; font: inherit; cursor: pointer; padding: 5px; }
+.business-about, .business-detail { padding: 30px; margin-block: 24px; border-radius: 24px; line-height: 2; }
+.business-about h2, .business-detail h2 { font-size: 1.2rem; margin-top: 0; }
+.business-detail h1 { font-size: clamp(1.7rem,4vw,2.4rem); margin: 8px 0; overflow-wrap: anywhere; }
+.business-detail .business-save { margin-top: 18px; }
+.business-bio { white-space: pre-wrap; overflow-wrap: anywhere; }
+.business-contacts { list-style: none; margin: 0; padding: 0; }
+.business-contacts li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; padding: 14px 0; border-bottom: 1px solid rgba(11,138,232,.12); }
+.business-contacts a { color: var(--accent-deep); overflow-wrap: anywhere; }
+.business-contacts li:last-child { border: 0; }
+.business-screen :is(a,button,input,select,summary):focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+@media(max-width:650px) { .business-list { grid-template-columns: 1fr; } .business-filter-grid { grid-template-columns: 1fr; gap: 14px; } .business-card,.business-filters,.business-detail,.business-about { padding: 22px 18px; } .business-home-search { gap: 4px; } .business-home-search input { font-size: .85rem; } .business-primary { padding-inline: 17px; } .business-category-options { grid-template-columns: 1fr; } .business-filter-actions label { width: 100%; } }
+@media(prefers-reduced-motion:reduce) { .business-screen * { scroll-behavior: auto; transition: none; } }
+.business-bookmarks-page .hero{margin-bottom:30px}

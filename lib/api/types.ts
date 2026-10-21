@@ -80,8 +80,10 @@ export type Session = {
 }
 
 /* Only the fields PATCH /account/profile accepts. Sending anything else is a
-   400, so the type is the guard. null clears a field; undefined omits it. */
+   400, so the type is the guard. null clears nullable fields; nickname must
+   remain nonblank. undefined omits a field. */
 export type ProfilePatch = {
+  nickname?: string
   first_name?: string | null
   last_name?: string | null
   bio?: string | null
