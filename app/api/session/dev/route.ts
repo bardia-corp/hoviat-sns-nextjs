@@ -8,15 +8,23 @@ const reply = (body: unknown, status = 200) => NextResponse.json(body, {
   status, headers: { "Cache-Control": "no-store" },
 })
 
-function isLocal(request: Request): boolean {
+function devLoginAccess(request: Request): { origin: string | null } | null {
   try {
     const host = request.headers.get("host") ?? new URL(request.url).host
-    return LOOPBACK.has(new URL("http://" + host).hostname) && LOOPBACK.has(new URL(API_BASE).hostname)
-  } catch { return false }
+    if (!LOOPBACK.has(new URL(API_BASE).hostname)) return null
+    if (LOOPBACK.has(new URL("http://" + host).hostname)) return { origin: null }
+
+    // Server-only opt-in for a preview protected by the deployment's access gate.
+    const configuredOrigin = process.env.SNS_DEV_LOGIN_ORIGIN
+    if (!configuredOrigin) return null
+    const preview = new URL(configuredOrigin)
+    if (preview.protocol !== "https:" || preview.origin !== configuredOrigin || LOOPBACK.has(preview.hostname)) return null
+    return host === preview.host ? { origin: configuredOrigin } : null
+  } catch { return null }
 }
 
 export async function GET(request: Request) {
-  if (!isLocal(request)) return reply({ enabled: false })
+  if (!devLoginAccess(request)) return reply({ enabled: false })
   try {
     const { data } = await apiRequest<{ enabled: boolean }>("/auth/dev-login", { timeoutMs: 3000 })
     return reply({ enabled: data?.enabled === true })
@@ -24,11 +32,12 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  if (!isLocal(request)) return reply({ ok: false, message: "ورود توسعه در دسترس نیست." }, 404)
+  const access = devLoginAccess(request)
+  if (!access) return reply({ ok: false, message: "ورود توسعه در دسترس نیست." }, 404)
   const origin = request.headers.get("origin")
   try {
     const host = request.headers.get("host") ?? new URL(request.url).host
-    if (origin && new URL(origin).host !== host) return reply({ ok: false }, 403)
+    if (access.origin ? origin !== access.origin : origin && new URL(origin).host !== host) return reply({ ok: false }, 403)
   } catch { return reply({ ok: false }, 403) }
   let userId: string | undefined
   try {
