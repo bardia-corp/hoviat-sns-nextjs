@@ -56,7 +56,7 @@ export default function RelatedBusinessPerson({ businessId }: { businessId: numb
   return <>
     {person && <section className="bp-section glass related-person-section"><h2><UIIcon name="user" size={22} />فرد مرتبط با کسب‌وکار</h2><button type="button" className="related-person-card" onClick={show}>
       <span className="related-person-avatar">{person.profile_url ? <img src={person.profile_url} alt="" /> : <UIIcon name="user" size={28} />}</span>
-      <span><strong dir="auto">{personName(person)}</strong>{person.bio && <span className="related-person-preview-bio" dir="auto">{person.bio}</span>}<small>اطلاعات بیشتر و راه‌های ارتباط</small></span><UIIcon name="arrow" size={20} />
+      <span className="related-person-card__body"><strong><bdi dir="auto">{personName(person)}</bdi></strong>{person.bio && <span className="related-person-preview-bio"><bdi dir="auto">{person.bio}</bdi></span>}<small>اطلاعات بیشتر و راه‌های ارتباط</small></span><span className="related-person-card__chevron" aria-hidden="true"><UIIcon name="chevron" size={18} /></span>
     </button></section>}
     <dialog ref={ref} className="related-person-dialog" aria-labelledby={titleId} onCancel={(event) => { event.preventDefault(); setOpen(false) }} onClick={(event) => {
       if (event.target !== event.currentTarget) return

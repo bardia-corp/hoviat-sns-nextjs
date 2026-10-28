@@ -66,7 +66,9 @@ export default async function BusinessPage({ params, searchParams }: Props) {
   const updated = new Date(business.updated_at)
   const updatedLabel = Number.isNaN(updated.getTime()) ? null : new Intl.DateTimeFormat("fa-IR", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" }).format(updated)
   const hasCoordinates = business.latitude !== null && business.longitude !== null && Number.isFinite(business.latitude) && Number.isFinite(business.longitude) && Math.abs(business.latitude) <= 90 && Math.abs(business.longitude) <= 180
-  const mapHref = hasCoordinates ? `https://www.openstreetmap.org/?mlat=${business.latitude}&mlon=${business.longitude}#map=16/${business.latitude}/${business.longitude}` : null
+  const mapQuery = hasCoordinates ? `${business.latitude},${business.longitude}` : business.address
+    ? [business.address, business.postal_code, location].filter(Boolean).join(", ") : null
+  const mapHref = mapQuery ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}` : null
   return <main className="screen business-screen bp-detail-screen">
     <Link href={backHref} className="bp-back"><UIIcon name="arrow" size={17} />بازگشت به جستجو</Link>
     <header className="bp-detail-hero glass">
@@ -102,7 +104,7 @@ export default async function BusinessPage({ params, searchParams }: Props) {
     </section>
     {(business.address || business.postal_code || mapHref) && <section className="bp-section bp-address glass" aria-labelledby="business-address-heading">
       <div><h2 id="business-address-heading"><UIIcon name="map" size={22} />نشانی</h2><p dir="auto">{[business.address, business.postal_code, location].filter(Boolean).join("، ")}</p></div>
-      {mapHref && <a href={mapHref} target="_blank" rel="noopener noreferrer" className="bp-action bp-action--secondary"><UIIcon name="map" size={19} />نمایش موقعیت روی نقشه<UIIcon name="external" size={15} /></a>}
+      {mapHref && <a href={mapHref} target="_blank" rel="noopener noreferrer" className="bp-action bp-action--secondary"><UIIcon name="map" size={19} />نمایش در Google Maps<UIIcon name="external" size={15} /></a>}
     </section>}
     <section id="business-contacts" className="bp-section glass" aria-labelledby="business-contacts-heading">
       <h2 id="business-contacts-heading"><UIIcon name="phone" size={22} />راه‌های ارتباط</h2>

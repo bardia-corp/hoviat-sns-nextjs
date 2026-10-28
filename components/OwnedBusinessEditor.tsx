@@ -107,6 +107,9 @@ export default function OwnedBusinessEditor({ id }: { id: string }) {
   const currentContacts = business ? readBusinessContacts(business.contacts) : null
   const locationStates = catalogue.find((country) => country.country_code === location.country_code)?.states ?? []
   const locationCities = locationStates.find((region) => region.state === location.state)?.cities ?? []
+  const locationHasCoordinates = location.latitude.trim() !== "" && location.longitude.trim() !== "" && Number.isFinite(Number(location.latitude)) && Number.isFinite(Number(location.longitude)) && Math.abs(Number(location.latitude)) <= 90 && Math.abs(Number(location.longitude)) <= 180
+  const mapQuery = locationHasCoordinates ? `${location.latitude.trim()},${location.longitude.trim()}` : [location.address, location.postal_code, location.city, location.state, location.country_code].map((value) => value.trim()).filter(Boolean).join(", ")
+  const mapHref = mapQuery ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}` : "https://www.google.com/maps"
   return <main className="owner-page owner-manage-page">
     <header className="owner-heading"><Link href="/my-businesses">کسب‌وکارهای من</Link><h1>{business?.name ?? "مدیریت کسب‌وکار"}</h1><p>اطلاعات و راه‌های ارتباط کسب‌وکار را به‌روز نگه دارید.</p></header>
     {!ready ? <p role="status">در حال بررسی حساب…</p> : !signedIn ? <section className="owner-panel"><h2>وارد حساب شوید</h2><Link className="owner-button" href={`/login?next=${encodeURIComponent(`/my-businesses/${id}`)}`}>ورود</Link></section>
@@ -135,6 +138,8 @@ export default function OwnedBusinessEditor({ id }: { id: string }) {
           </div>
           <label>نشانی<input value={location.address} onChange={(event) => setLocation({ ...location, address: event.target.value })} /></label>
           <p className="editor-help">اگر شهرتان در فهرست نیست، از پشتیبانی بخواهید آن را اضافه کند.</p>
+          <a className="owner-secondary owner-map-link" href={mapHref} target="_blank" rel="noopener noreferrer"><UIIcon name="map" size={18} /><span>بررسی موقعیت در Google Maps</span><UIIcon name="external" size={15} /></a>
+          <p className="editor-help">نقطهٔ دقیق را در Google Maps پیدا کنید و عرض و طول جغرافیایی آن را در بخش مختصات وارد کنید. انتخاب نقطه در نقشه به‌تنهایی این فرم را تغییر نمی‌دهد.</p>
           <details><summary>مختصات جغرافیایی (اختیاری)</summary><div className="owner-grid"><label>عرض جغرافیایی<input type="number" dir="ltr" step="any" min={-90} max={90} value={location.latitude} onChange={(event) => setLocation({ ...location, latitude: event.target.value })} /></label><label>طول جغرافیایی<input type="number" dir="ltr" step="any" min={-180} max={180} value={location.longitude} onChange={(event) => setLocation({ ...location, longitude: event.target.value })} /></label></div></details>
         </>}
         {editor === "contacts" && <><GuidedContactFields business values={contactDraft} onChange={(kind, value) => setContactDraft((current) => ({ ...current, [kind]: value }))} visibility={contactVisibility} onVisibility={(kind, visible) => setContactVisibility((current) => ({ ...current, [kind]: visible }))} />{currentContacts && currentContacts.preservedCount > 0 && <p className="editor-help">راه‌های ارتباطی دیگری که از قبل ثبت شده‌اند، با این فرم تغییری نمی‌کنند.</p>}</>}

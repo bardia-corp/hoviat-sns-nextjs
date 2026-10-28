@@ -26,6 +26,9 @@
 .owner-form .owner-checkbox { flex-direction: row; align-items: center; gap: 10px; }
 .owner-form .owner-checkbox input { width: 20px; height: 20px; min-height: 20px; accent-color: var(--accent-deep); }
 .owner-secondary, .owner-text-button { font: inherit; cursor: pointer; border-radius: 12px; padding: 10px 16px; color: var(--accent-deep); background: rgba(255,255,255,.5); border: 1px solid rgba(40,100,145,.25); }
+.owner-map-link { display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center; text-decoration: none; line-height: 1.8; }
+.owner-map-link span { min-width: 0; overflow-wrap: anywhere; }
+.owner-map-link svg { flex-shrink: 0; }
 .owner-text-button { color: #a02222; background: transparent; }
 .owner-save, .owner-pagination { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; padding: 12px 0; }
 .owner-pagination { justify-content: center; margin-top: 24px; }
