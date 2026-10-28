@@ -22,3 +22,18 @@ export async function getOwnedBusiness(token: string, id: number): Promise<Owned
 export async function updateOwnedBusiness(token: string, id: number, body: OwnedBusinessPatch): Promise<OwnedBusiness> {
   return (await apiRequest<OwnedBusiness>(`/me/services/${id}`, { token, method: "PATCH", body })).data
 }
+
+export async function replaceOwnedBusinessCover(token: string, id: number, file: File, expectedUpdatedAt: string): Promise<OwnedBusiness> {
+  const form = new FormData()
+  form.append("file", file)
+  form.append("expected_updated_at", expectedUpdatedAt)
+  return (await apiRequest<OwnedBusiness>(`/me/services/${id}/cover-image`, {
+    token, method: "POST", form, timeoutMs: 30000,
+  })).data
+}
+
+export async function removeOwnedBusinessCover(token: string, id: number, expectedUpdatedAt: string): Promise<OwnedBusiness> {
+  return (await apiRequest<OwnedBusiness>(`/me/services/${id}/cover-image`, {
+    token, method: "DELETE", query: { expected_updated_at: expectedUpdatedAt }, timeoutMs: 30000,
+  })).data
+}

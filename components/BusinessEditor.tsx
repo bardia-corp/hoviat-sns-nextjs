@@ -60,10 +60,9 @@ export function MyBusinessList({ page }: { page: number }) {
             <div className="owner-cards">{result?.items.map((business) => <article className="owner-panel owner-business-row" key={business.id}>
               <Link href={`/my-businesses/${business.id}`} className="owner-business-cover" aria-label={`مدیریت ${business.name}`}><BusinessCover url={business.cover_image_url} /></Link>
               <div className="owner-business-row__body">
+              <h2><Link className="owner-business-main-link" href={`/my-businesses/${business.id}`}><bdi dir="auto">{business.name}</bdi></Link></h2>
+              <p className="owner-business-meta"><bdi dir="auto">{[business.city, business.state].filter(Boolean).join("، ") || business.country_code || "نشانی وارد نشده است"}</bdi>{business.categories.length > 0 && <> · <bdi dir="auto">{(business.categories.find((entry) => entry.is_primary) || business.categories[0]).category?.name}</bdi></>}</p>
               <span className="owner-badge">{STATUS[business.status]}</span>
-              <h2><Link className="owner-business-main-link" href={`/my-businesses/${business.id}`}>{business.name}</Link></h2>
-              <p>{[business.city, business.state, business.country_code].filter(Boolean).join("، ") || "نشانی وارد نشده است"}</p>
-              <p className="owner-bio">{business.description || "هنوز معرفی کسب‌وکار نوشته نشده است."}</p>
               </div>
               <Link className="owner-button" href={`/my-businesses/${business.id}`}>ویرایش اطلاعات</Link>
             </article>)}</div>

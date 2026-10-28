@@ -11,24 +11,23 @@ export default function BusinessCard({ business, returnTo }: { business: Busines
   const categories = [...new Map(business.categories.map((entry) => [entry.category_id, entry])).values()]
   const primary = categories.find((entry) => entry.is_primary) || categories[0]
   const tags = [
-    ...categories.filter((entry) => entry.category_id !== primary?.category_id).slice(0, 2).map((entry) => ({ key: String(entry.category_id), label: entry.category.name, category: true })),
+    ...categories.filter((entry) => entry.category_id !== primary?.category_id).map((entry) => ({ key: String(entry.category_id), label: entry.category.name, category: true })),
     ...RELEVANCE_FIELDS.filter(({ key }) => business[key] === true).map(({ key, label }) => ({ key, label, category: false })),
   ]
   return <article id={`business-${business.id}`} className="bp-result glass" style={{ scrollMarginTop: "2rem" }}>
     <div className="bp-category-art">
-      <BusinessCover url={business.cover_image_url} label={primary?.category.name || "کسب‌وکار و خدمات"} />
+      <BusinessCover url={business.cover_image_url} />
     </div>
     <div className="bp-result__body">
-      <h2><Link href={href} className="bp-result__main-link">{business.name}</Link></h2>
-      {location && <p className="bp-location"><UIIcon name="map" size={16} /><span dir="auto">{location}</span></p>}
-      {business.description && <p className="bp-result__description">{business.description}</p>}
-      {tags.length > 0 && <ul className="bp-tags" aria-label="دسته‌بندی و ویژگی‌ها">
-        {tags.slice(0, 5).map((tag) => <li key={tag.key} className={tag.category ? "bp-tag" : "bp-tag bp-tag--relevance"}>{tag.label}</li>)}
-        {tags.length > 5 && <li className="bp-tag bp-tag--more">{(tags.length - 5).toLocaleString("fa-IR")} ویژگی دیگر</li>}
-      </ul>}
+      <h2><Link href={href} className="bp-result__main-link"><bdi dir="auto">{business.name}</bdi></Link></h2>
+      <p className="bp-location"><UIIcon name="map" size={16} /><span>{[location, primary?.category.name].filter(Boolean).map((label, index) => <span key={index}>{index > 0 && " · "}<bdi dir="auto">{label}</bdi></span>)}</span></p>
+      <ul className="bp-tags" aria-label="دسته‌بندی و ویژگی‌ها">
+        {tags.slice(0, 1).map((tag) => <li key={tag.key} className={tag.category ? "bp-tag" : "bp-tag bp-tag--relevance"}>{tag.label}</li>)}
+        {tags.length > 1 && <li className="bp-tag bp-tag--more" aria-label={`${tags.length - 1} ویژگی دیگر در جزئیات`}>+{(tags.length - 1).toLocaleString("fa-IR")}</li>}
+      </ul>
     </div>
     <div className="bp-result__actions">
-      <Link href={href} className="bp-action bp-action--primary"><span>مشاهده و اطلاعات تماس</span><UIIcon name="chevron" className="bp-chevron" size={18} /></Link>
+      <Link href={href} className="bp-action bp-action--primary"><span>مشاهده جزئیات</span><UIIcon name="chevron" className="bp-chevron" size={18} /></Link>
       <BusinessBookmarkButton business={business} />
     </div>
   </article>

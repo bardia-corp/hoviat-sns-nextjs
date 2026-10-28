@@ -6,6 +6,7 @@ import { useAuth } from "./AuthProvider"
 import EditorDialog from "./EditorDialog"
 import GuidedContactFields from "./GuidedContactFields"
 import UIIcon from "./UIIcon"
+import OwnedBusinessPhoto from "./OwnedBusinessPhoto"
 import { apiFetch } from "@/lib/client-session"
 import { BUSINESS_CONTACT_TEMPLATES, EMPTY_CONTACTS, readBusinessContacts, validateContacts, writeBusinessContacts, type ContactKind, type ContactValues } from "@/lib/guided-contacts"
 import type { BusinessLocation } from "@/lib/api/business-types"
@@ -119,6 +120,7 @@ export default function OwnedBusinessEditor({ id }: { id: string }) {
             {notice && <p className="owner-notice" role="status">{notice}</p>}
             {loadError && <p className="owner-alert" role="alert">{loadError}</p>}
             {stale && <div className="owner-alert" role="alert"><p>اطلاعات این کسب‌وکار تغییر کرده است. نسخه تازه را بارگیری و دوباره ویرایش کنید.</p><button type="button" onClick={() => { setEditor(null); setRetry((value) => value + 1) }}>بارگیری نسخه تازه</button></div>}
+            <OwnedBusinessPhoto business={business} stale={stale} onUpdated={(updated) => { setBusiness(updated); setNotice("عکس کسب‌وکار ذخیره شد.") }} onConflict={() => setStale(true)} onMissing={() => { setMissing(true); setBusiness(null) }} />
             <section className="owner-panel"><div className="owner-section-heading"><h2><UIIcon name="store" size={23} />معرفی کسب‌وکار</h2>{sectionButton("identity")}</div><span className="owner-badge">{STATUS[business.status]}</span><h3>{business.name}</h3><p className="owner-bio">{business.description || "توضیحی درباره کسب‌وکار ثبت نشده است."}</p>{business.categories.length > 0 && <p className="owner-hint">{business.categories.map((item) => item.category?.name).filter(Boolean).join("، ")}</p>}</section>
             <section className="owner-panel"><div className="owner-section-heading"><h2><UIIcon name="map" size={23} />موقعیت</h2>{sectionButton("location")}</div><p>{[business.address, business.postal_code, business.city, business.state, business.country_code].filter(Boolean).join("، ") || "نشانی وارد نشده است."}</p></section>
             <section className="owner-panel"><div className="owner-section-heading"><h2><UIIcon name="phone" size={23} />راه‌های تماس کسب‌وکار</h2>{sectionButton("contacts")}</div><div className="owner-contact-summary">{BUSINESS_CONTACT_TEMPLATES.filter(({ key }) => currentContacts?.values[key]).map(({ key, label }) => <div key={key}><span>{label}</span><bdi>{key === "phone" || key === "whatsapp" ? "+" : key === "telegram" ? "@" : ""}{currentContacts!.values[key]}</bdi><small>{currentContacts!.visible[key] ? "عمومی" : "پنهان"}</small></div>)}</div>{currentContacts && !Object.values(currentContacts.values).some(Boolean) && <p className="owner-hint">راه‌های ارتباطی کسب‌وکار مثل تلفن، وب‌سایت یا تلگرام را اضافه کنید.</p>}</section>
