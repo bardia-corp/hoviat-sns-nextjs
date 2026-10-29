@@ -79,9 +79,10 @@ export async function apiFetch<T>(
   }
 
   /* The server is authoritative twice over: an explicit signedIn: false, or a
-     401 regardless of what the body says. */
+     401 regardless of what the body says. Without either verdict, a permission
+     error or an HTML error from the proxy says nothing about authentication. */
   const signedIn =
-    response.status === 401 ? false : (body?.signedIn ?? response.ok)
+    response.status === 401 ? false : (body?.signedIn ?? true)
 
   if (!signedIn) {
     notifySessionExpired({
