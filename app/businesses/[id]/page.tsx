@@ -9,6 +9,8 @@ import { BusinessBookmarkStatus } from "@/components/BusinessBookmarksProvider"
 import UIIcon from "@/components/UIIcon"
 import BusinessCover from "@/components/BusinessCover"
 import RelatedBusinessPerson from "@/components/RelatedBusinessPerson"
+import BusinessMapPreview from "@/components/BusinessMapPreview"
+import { businessMap } from "@/lib/business-map"
 import "@/app/business-presentation.css"
 
 function contactHref(contact: BusinessContact): string | null {
@@ -65,10 +67,7 @@ export default async function BusinessPage({ params, searchParams }: Props) {
   const phone = contacts.find((contact) => contact.type === "phone" && contactHref(contact))
   const updated = new Date(business.updated_at)
   const updatedLabel = Number.isNaN(updated.getTime()) ? null : new Intl.DateTimeFormat("fa-IR", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" }).format(updated)
-  const hasCoordinates = business.latitude !== null && business.longitude !== null && Number.isFinite(business.latitude) && Number.isFinite(business.longitude) && Math.abs(business.latitude) <= 90 && Math.abs(business.longitude) <= 180
-  const mapQuery = hasCoordinates ? `${business.latitude},${business.longitude}` : business.address
-    ? [business.address, business.postal_code, location].filter(Boolean).join(", ") : null
-  const mapHref = business.google_maps_url || (mapQuery ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}` : null)
+  const { href: mapHref, embedSrc } = businessMap(business)
   return <main className="screen business-screen bp-detail-screen">
     <Link href={backHref} className="bp-back"><UIIcon name="arrow" size={17} />بازگشت به جستجو</Link>
     <header className="bp-detail-hero glass">
@@ -98,9 +97,12 @@ export default async function BusinessPage({ params, searchParams }: Props) {
       <p className="bp-bio">{business.description || "هنوز توضیحی برای این کسب‌وکار ثبت نشده است."}</p>
       {categories.length > 0 && <ul className="bp-tags" aria-label="دسته‌بندی‌ها">{categories.map((entry) => <li key={entry.category_id} className="bp-tag"><Link href={"/discover?category=" + entry.category_id + "&country_code=" + (business.country_code || "all")}><UIIcon name="tag" size={14} />{entry.category.name}</Link></li>)}</ul>}
     </section>
-    {(business.address || business.postal_code || mapHref) && <section className="bp-section bp-address glass" aria-labelledby="business-address-heading">
-      <div><h2 id="business-address-heading"><UIIcon name="map" size={22} />نشانی</h2><p dir="auto">{[business.address, business.postal_code, location].filter(Boolean).join("، ")}</p></div>
-      {mapHref && <a href={mapHref} target="_blank" rel="noopener noreferrer" className="bp-action bp-action--secondary"><UIIcon name="map" size={19} />نمایش در Google Maps<UIIcon name="external" size={15} /></a>}
+    {(business.address || business.postal_code || mapHref) && <section className="bp-section glass" aria-labelledby="business-address-heading">
+      <div className="bp-address">
+        <div><h2 id="business-address-heading"><UIIcon name="map" size={22} />نشانی</h2><p dir="auto">{[business.address, business.postal_code, location].filter(Boolean).join("، ")}</p></div>
+        {mapHref && <a href={mapHref} target="_blank" rel="noopener noreferrer" className="bp-action bp-action--secondary"><UIIcon name="map" size={19} />نمایش در Google Maps<UIIcon name="external" size={15} /></a>}
+      </div>
+      {embedSrc && <BusinessMapPreview key={embedSrc} src={embedSrc} name={business.name} />}
     </section>}
     <section id="business-contacts" className="bp-section glass" aria-labelledby="business-contacts-heading">
       <h2 id="business-contacts-heading"><UIIcon name="phone" size={22} />راه‌های ارتباط</h2>
