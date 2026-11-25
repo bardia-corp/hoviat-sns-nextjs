@@ -68,7 +68,7 @@ export default async function BusinessPage({ params, searchParams }: Props) {
   const hasCoordinates = business.latitude !== null && business.longitude !== null && Number.isFinite(business.latitude) && Number.isFinite(business.longitude) && Math.abs(business.latitude) <= 90 && Math.abs(business.longitude) <= 180
   const mapQuery = hasCoordinates ? `${business.latitude},${business.longitude}` : business.address
     ? [business.address, business.postal_code, location].filter(Boolean).join(", ") : null
-  const mapHref = mapQuery ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}` : null
+  const mapHref = business.google_maps_url || (mapQuery ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}` : null)
   return <main className="screen business-screen bp-detail-screen">
     <Link href={backHref} className="bp-back"><UIIcon name="arrow" size={17} />بازگشت به جستجو</Link>
     <header className="bp-detail-hero glass">

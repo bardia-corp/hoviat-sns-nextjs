@@ -10,6 +10,7 @@ export type BusinessContact = {
 }
 
 export type Business = {
+  google_maps_url?: string | null
   id: number
   name: string
   description: string | null
