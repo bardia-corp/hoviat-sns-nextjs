@@ -3,7 +3,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { getBusiness } from "@/lib/api/businesses"
 import type { BusinessContact } from "@/lib/api/business-types"
-import { businessLocationLabel, RELEVANCE_FIELDS } from "@/lib/business-search"
+import { businessLocationLabel } from "@/lib/business-search"
 import BusinessBookmarkButton from "@/components/BusinessBookmarkButton"
 import { BusinessBookmarkStatus } from "@/components/BusinessBookmarksProvider"
 import UIIcon from "@/components/UIIcon"
@@ -97,10 +97,6 @@ export default async function BusinessPage({ params, searchParams }: Props) {
       <h2 id="business-about-heading"><UIIcon name="briefcase" size={22} />دربارهٔ کسب‌وکار</h2>
       <p className="bp-bio">{business.description || "هنوز توضیحی برای این کسب‌وکار ثبت نشده است."}</p>
       {categories.length > 0 && <ul className="bp-tags" aria-label="دسته‌بندی‌ها">{categories.map((entry) => <li key={entry.category_id} className="bp-tag"><Link href={"/discover?category=" + entry.category_id + "&country_code=" + (business.country_code || "all")}><UIIcon name="tag" size={14} />{entry.category.name}</Link></li>)}</ul>}
-    </section>
-    <section className="bp-section glass" aria-labelledby="business-persian-heading">
-      <h2 id="business-persian-heading"><UIIcon name="users" size={22} />ارتباط با جامعهٔ فارسی‌زبان</h2>
-      <dl className="bp-relevance">{RELEVANCE_FIELDS.map(({ key, label }) => <div key={key}><dt>{label}</dt><dd className={business[key] === true ? "bp-relevance__yes" : business[key] === null ? "bp-relevance__unknown" : "bp-relevance__no"} title={business[key] === true ? "بله" : business[key] === false ? "خیر" : "نامشخص"}><span aria-hidden="true">{business[key] === true ? "✓" : business[key] === false ? "✕" : "?"}</span><span className="sr-only">{business[key] === true ? "بله" : business[key] === false ? "خیر" : "نامشخص"}</span></dd></div>)}</dl>
     </section>
     {(business.address || business.postal_code || mapHref) && <section className="bp-section bp-address glass" aria-labelledby="business-address-heading">
       <div><h2 id="business-address-heading"><UIIcon name="map" size={22} />نشانی</h2><p dir="auto">{[business.address, business.postal_code, location].filter(Boolean).join("، ")}</p></div>
